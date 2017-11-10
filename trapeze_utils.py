@@ -15,9 +15,39 @@ def find_link(name):
                 return (id, i)
     return None
 
+def fix_in_space(obj, type):
+    if obj[1] == -1:
+        (pos, orient) = p.getBasePositionAndOrientation(obj[0])
+    else:
+        Raise("Can only fix base for now")
+
+    if type == 'point2point':
+        c = p.createConstraint(parentBodyUniqueId=obj[0], parentLinkIndex=obj[1],
+            childBodyUniqueId=-1, childLinkIndex=-1,
+            jointType=p.JOINT_POINT2POINT, jointAxis=[0,0,1],
+            parentFramePosition=[0,0,0], childFramePosition=pos)
+    elif type == 'fixed':
+        c = [p.createConstraint(parentBodyUniqueId=obj[0], parentLinkIndex=obj[1],
+                childBodyUniqueId=-1, childLinkIndex=-1,
+                jointType=p.JOINT_POINT2POINT, jointAxis=[0,0,1],
+                parentFramePosition=[0,0,0], childFramePosition=pos),
+             p.createConstraint(parentBodyUniqueId=obj[0], parentLinkIndex=obj[1],
+                childBodyUniqueId=-1, childLinkIndex=-1,
+                jointType=p.JOINT_POINT2POINT, jointAxis=[0,0,1],
+                parentFramePosition=[0.1,0,0], childFramePosition=np.array(pos)-[0.1,0,0]),
+             p.createConstraint(parentBodyUniqueId=obj[0], parentLinkIndex=obj[1],
+                childBodyUniqueId=-1, childLinkIndex=-1,
+                jointType=p.JOINT_POINT2POINT, jointAxis=[0,0,1],
+                parentFramePosition=[0,0.1,0], childFramePosition=np.array(pos)-[0,0.1,0])
+            ]
+    else:
+        raise("Unknown fix in space type "+type)
+
+    return c
+
 def attach_closest_point2point(obj_A_id, obj_B_id, distance=0.1):
     closest_points = p.getClosestPoints(bodyA=obj_A_id, bodyB=obj_B_id, distance=distance)
-    print "got closest",obj_A_id, obj_B_id, len(closest_points)
+    # print "got closest",obj_A_id, obj_B_id, len(closest_points)
     attachment_constraints = []
     for closest_pair in closest_points:
         obj_A_link_id = closest_pair[3]
@@ -25,33 +55,45 @@ def attach_closest_point2point(obj_A_id, obj_B_id, distance=0.1):
         obj_A_pos_world = np.array(closest_pair[5])
         obj_B_pos_world = np.array(closest_pair[6])
 
-        print "obj A ", obj_A_id, obj_A_link_id
-        print "obj B ", obj_B_id, obj_B_link_id
+        # print "obj A ", obj_A_id, obj_A_link_id
+        # print "obj B ", obj_B_id, obj_B_link_id
+        # print "obj_A_pos_world", obj_A_pos_world
+        # print "obj_B_pos_world", obj_B_pos_world
 
         if obj_A_link_id == -1:
             obj_A_CoM_pos_orient = p.getBasePositionAndOrientation(obj_A_id)
         else:
-            obj_A_CoM_pos_orient = p.getLinkState(obj_A_id, obj_A_link_id)[0:2]
+            s = p.getLinkState(obj_A_id, obj_A_link_id)
+            # print "obj A",s
+            # print p.getJointInfo(obj_A_id, obj_A_link_id)
+            obj_A_CoM_pos_orient = s[0:2]
         if obj_B_link_id == -1:
             obj_B_CoM_pos_orient = p.getBasePositionBndOrientation(obj_B_id)
         else:
-            obj_B_CoM_pos_orient = p.getLinkState(obj_B_id, obj_B_link_id)[0:2]
+            s = p.getLinkState(obj_B_id, obj_B_link_id)
+            # print p.getJointInfo(obj_B_id, obj_B_link_id)
+            # print "obj B",s
+            obj_B_CoM_pos_orient = s[0:2]
 
-        print "obj_A_CoM ", obj_A_CoM_pos_orient
-        print "obj_B_CoM ", obj_B_CoM_pos_orient
+        # print "obj_A_CoM pos,orient", obj_A_CoM_pos_orient
+        # print "obj_A euler", p.getEulerFromQuaternion(obj_A_CoM_pos_orient[1])
+        # print "obj_B_CoM pos,orient", obj_B_CoM_pos_orient
+        # print "obj_B euler", p.getEulerFromQuaternion(obj_B_CoM_pos_orient[1])
 
-        parent_pos = p.multiplyTransforms(obj_A_pos_world-np.array(obj_A_CoM_pos_orient[0]), [0,0,0,1], [0,0,0], obj_A_CoM_pos_orient[1])
-        child_pos =  p.multiplyTransforms(obj_B_pos_world-np.array(obj_B_CoM_pos_orient[0]), [0,0,0,1], [0,0,0], obj_B_CoM_pos_orient[1])
-        print "obj_A_pos_world", obj_A_pos_world
-        print "parent_pos", parent_pos
-        print "obj_B_pos_world", obj_B_pos_world
-        print "child_pos", child_pos
+        parent_pos =  p.multiplyTransforms([0,0,0], obj_A_CoM_pos_orient[1], obj_A_pos_world-np.array(obj_A_CoM_pos_orient[0]), [0,0,0,1])[0]
+        child_pos =  p.multiplyTransforms([0,0,0], obj_B_CoM_pos_orient[1], obj_B_pos_world-np.array(obj_B_CoM_pos_orient[0]), [0,0,0,1])[0]
+
+        # print "raw parent pos",obj_A_pos_world-np.array(obj_A_CoM_pos_orient[0])
+        # print "parent_pos", parent_pos
+        # print "raw child pos",obj_B_pos_world-np.array(obj_B_CoM_pos_orient[0])
+        # print "child_pos", child_pos
+
         attachment_constraints.append(
             p.createConstraint(
                 parentBodyUniqueId=obj_A_id, parentLinkIndex=obj_A_link_id,
                 childBodyUniqueId=obj_B_id, childLinkIndex=obj_B_link_id,
                 jointType=p.JOINT_POINT2POINT, jointAxis=[0,0,1],
-                parentFramePosition=parent_pos,childFramePosition=child_pos)
+                parentFramePosition=np.array(parent_pos),childFramePosition=np.array(child_pos))
             )
     return attachment_constraints
 
