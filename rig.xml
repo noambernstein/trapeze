@@ -1,0 +1,73 @@
+<mujoco model='rig'>
+    <compiler inertiafromgeom='true' angle='degree'/>
+
+    <default>
+        <joint limited='true' damping='1' armature='0' />
+        <geom contype='1' conaffinity='1' condim='1' rgba='0.8 0.6 .4 1'
+        	margin="0.001" solref=".02 1" solimp=".8 .8 .01" material="geom"/>
+        <motor ctrlrange='-.4 .4' ctrllimited='true'/>
+    </default>
+
+    <option timestep='0.002' iterations="50" solver="PGS">
+        <flag energy="enable"/>
+    </option>
+
+    <visual>
+        <map fogstart="3" fogend="5" force="0.1"/>
+        <quality shadowsize="2048"/>
+    </visual>
+
+    <asset>
+        <texture type="skybox" builtin="gradient" width="100" height="100" rgb1=".4 .6 .8" 
+            rgb2="0 0 0"/>  
+        <texture name="texgeom" type="cube" builtin="flat" mark="cross" width="127" height="1278" 
+            rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" markrgb="1 1 1" random="0.01"/>  
+        <texture name="texplane" type="2d" builtin="checker" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2" 
+            width="100" height="100"/>  
+
+        <material name='MatPlane' reflectance='0.5' texture="texplane" texrepeat="1 1" texuniform="true"/>
+        <material name='geom' texture="texgeom" texuniform="true"/>
+    </asset>
+
+    <worldbody>
+        <geom name='floor' pos='0 0 0' size='10 10 0.125' type='plane' material="MatPlane" condim='3'/>
+
+        <body name='fly_crane' pos='0 0 10.4' >
+            <geom name='fly_crane' type='cylinder' fromto='0 -1 0 0 1 0' size='0.05' />
+	    <inertial mass='0.0' />
+        </body>
+
+        <body name='fly_trap' pos='2.2 0 8.7' >
+            <geom name='fly_trap' type='cylinder' fromto='0 -0.75 0 0 0.75 0' size='0.01' />
+
+            <body name='l_fly_cable' pos='0 -0.75 0'>
+                inertial mass='1' />
+                <geom name='l_fly_cable' type='cylinder' fromto='-0.05 0 0   -2.15 0 1.65' size='0.0025' />
+                <joint name='l_fly_cable_bar_x' type='hinge' pos='0 0 0' axis='1 0 0' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
+                <joint name='l_fly_cable_bar_y' type='hinge' pos='0 0 0' axis='0 1 0' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
+                <joint name='l_fly_cable_bar_z' type='hinge' pos='0 0 0' axis='0 0 1' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
+            </body>
+            <body name='r_fly_cable' pos='0 0.75 0'>
+                inertial mass='1' />
+                <geom name='r_fly_cable' type='cylinder' fromto='-0.05 0 0   -2.15 0 1.65' size='0.0025' />
+                <!-- <joint name='r_fly_cable_bar_attach' type='ball' axis='0 0 1' range='-180 180' pos='0 0 0' damping='0' stiffness='0' armature='0.001' /> -->
+                <joint name='r_fly_cable_bar_x' type='hinge' pos='0 0 0' axis='1 0 0' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
+                <joint name='r_fly_cable_bar_y' type='hinge' pos='0 0 0' axis='0 1 0' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
+                <joint name='r_fly_cable_bar_z' type='hinge' pos='0 0 0' axis='0 0 1' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
+            </body>
+        </body>
+
+        <body name='board' pos='3.0 0 7.0' size='1.0 2.0 0.05' type='plane' material='MatPlane' condim='3'  >
+            <geom name='board' type='box' pos='1.0 0 -0.05' size='1.0 2.0 0.05'  />
+	    <inertial mass='0.0' />
+        </body>
+
+
+    </worldbody>
+
+    <actuator>
+        <motor name='l_fly_cable_bar_attach' gear='100' joint='l_fly_cable_bar_attach' />
+        <motor name='r_fly_cable_bar_attach' gear='100' joint='r_fly_cable_bar_attach' />
+    </actuator>
+
+</mujoco>
