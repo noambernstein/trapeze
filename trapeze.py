@@ -4,6 +4,7 @@ import sys
 import time
 import numpy as np
 import pybullet as p
+import xml.etree.ElementTree as ET
 
 from trapeze_utils import *
 
@@ -56,6 +57,14 @@ if len(sys.argv) > 1 and sys.argv[1] == "--exercise":
 # grab on
 print("ATTACHING HANDS TO FLY BAR")
 flyer_hands_attachment_constraints = attach_closest_point2point(fly_trap_id[0], flyerID, distance=0.2)
+
+poses = ET.parse('poses.xml').getroot()
+print(poses.tag, poses.attrib)
+print(len(poses))
+for child in poses:
+    print(child.tag, child.attrib)
+    print(len(child))
+sys.exit(0)
 
 dt=0.005
 p.setRealTimeSimulation(1)
