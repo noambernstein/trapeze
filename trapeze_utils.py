@@ -8,10 +8,10 @@ deg=np.pi/180.0
 def find_link(name):
     for i in range(p.getNumBodies()):
         id = p.getBodyUniqueId(i)
-        if p.getBodyInfo(id)[0] == name:
+        if p.getBodyInfo(id)[0].decode() == name:
             return (id, -1)
         for i in range(p.getNumJoints(id)):
-            if p.getJointInfo(id,i)[-1] == name:
+            if p.getJointInfo(id,i)[-1].decode() == name:
                 return (id, i)
     return None
 
@@ -99,7 +99,7 @@ def attach_closest_point2point(obj_A_id, obj_B_id, distance=0.1):
 
 
 def exercise(flyerID, name_list):
-    print p.getPhysicsEngineParameters()
+    print(p.getPhysicsEngineParameters())
     p.setGravity(0,0,0)
 
     (flyer_pos,flyer_orient) = p.getBasePositionAndOrientation(flyerID)
@@ -107,10 +107,10 @@ def exercise(flyerID, name_list):
 
     for jointID in range(p.getNumJoints(flyerID)):
         joint_info = p.getJointInfo(flyerID, jointID)
-        print joint_info
-    print ""
+        print(joint_info)
+    print("")
 
-    print "index name type pindex vindex flags damping friction lolim uplim maxf maxv linkname"
+    print("index name type pindex vindex flags damping friction lolim uplim maxf maxv linkname")
 
     joint_dict = {}
     for jointID in range(p.getNumJoints(flyerID)):
@@ -124,7 +124,7 @@ def exercise(flyerID, name_list):
 
     for joint in joint_list:
         joint_info = p.getJointInfo(flyerID, joint)
-        print joint_info
+        print(joint_info)
         i_frame = 0
         dir=1
         while True:
