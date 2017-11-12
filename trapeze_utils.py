@@ -1,6 +1,7 @@
 import time
 import numpy as np
 import pybullet as p
+import xml.etree.ElementTree as ET
 
 dt=0.01
 deg=np.pi/180.0
@@ -144,3 +145,64 @@ def exercise(flyerID, name_list):
             time.sleep(dt)
 
     p.setGravity(0,0,-9.8)
+
+
+def parse_poses(flyerID, file):
+    joint_ids = {}
+    for joint_id in range(p.getNumJoints(flyerID)):
+        info = p.getJointInfo(flyerID,joint_id)
+        joint_ids[info[1].decode()] = joint_id
+
+    poses_info = ET.parse(file).getroot()
+    poses = {}
+    default_pose = { 'bodyIndex' : 0, 'joint_info' : {} }
+    for child in poses_info:
+        if child.tag == 'defaults':
+            for joint in child:
+                if joint.tag != 'joint':
+                    Raise("Unknown tag inside defaults "+joint.tag)
+                name = joint.attrib['name']
+                value = float(joint.attrib['value'])
+                force = float(joint.attrib['force'])
+                default_pose['body_index'] = flyerID
+                default_pose['joint_info'][joint_ids[name]] = { 'controlMode' : p.POSITION_CONTROL, 'targetPositions' : value, 'forces' : force }
+            print("got default_pose",default_pose)
+        elif child.tag == 'pose':
+            pose_name=child.attrib['name']
+            pose_key=child.attrib['key']
+            pose = default_pose.deepcopy()
+            for joint in child:
+                if joint.tag != 'joint':
+                    Raise("Unknown tag inside pose "+joint.tag)
+                joint_name=joint.attrib['name']
+                try:
+                    pose['joint_info'][joint_ids[joint_name]]['targetPositions'] = float(joint.attrib['value'])
+                except:
+                    pass
+                try:
+                    pose['joint_info'][joint_ids[joint_name]]['forces'] = float(joint.attrib['force'])
+                except:
+                    pass
+            poses[pose_key] = (pose_name, pose)
+
+    print("poses")
+    for pose_key in poses:
+        pose = poses[pose_key]
+        print("orig pose",pose)
+        joint_info = pose[1]['joint_info']
+        pose_kwargs = {}
+        pose_kwargs['bodyIndex'] = flyerID
+        pose_kwargs['jointIndices'] = []
+        for joint in joint_info:
+            print("add joint",joint)
+            pose_kwargs['jointIndices'].append(joint)
+            for kwargs_key in joint_info[joint]:
+                print("setting kwargs_key",kwargs_key)
+                if kwargs_key not in pose_kwargs:
+                    pose_kwargs[kwargs_key] = []
+                pose_kwargs[kwargs_key].append(joint_info[joint][kwargs_key])
+        print("pose_kwargs",pose_kwargs)
+        sys.exit(1)
+        print("pose",pose_key,poses[pose_key][0])
+
+    return poses
