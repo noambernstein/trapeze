@@ -167,7 +167,7 @@ def parse_poses(flyerID, file):
                 force = float(joint.attrib['force'])
                 default_pose['bodyIndex'] = flyerID
                 default_pose['jointIndices'].append(id)
-                default_pose['targetPositions'].append(value)
+                default_pose['targetPositions'].append(value*deg)
                 default_pose['forces'].append(force)
             # print("got default_pose",default_pose)
         elif child.tag == 'pose':
@@ -187,7 +187,7 @@ def parse_poses(flyerID, file):
                 joint_id=joint_ids[joint_name]
                 arrays_index = pose['jointIndices'].index(joint_id)
                 try:
-                    pose['targetPositions'][arrays_index] = float(joint.attrib['value'])
+                    pose['targetPositions'][arrays_index] = float(joint.attrib['value'])*deg
                 except:
                     pass
                 try:
