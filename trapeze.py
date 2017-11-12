@@ -58,14 +58,21 @@ print("ATTACHING HANDS TO FLY BAR")
 flyer_hands_attachment_constraints = attach_closest_point2point(fly_trap_id[0], flyerID, distance=0.2)
 
 poses = parse_poses(flyerID, "poses.xml")
+for key in poses:
+    print("key {} pose {}".format(key,poses[key][0]))
+    for pose in poses[key][1]:
+        print("body",p.getBodyInfo(pose['bodyIndex']))
+        for (joint_id, value, force) in zip(pose['jointIndices'],pose['targetPositions'],pose['forces']):
+            print("joint",p.getJointInfo(pose['bodyIndex'],joint_id)[1],value,force)
 
 dt=0.005
 p.setRealTimeSimulation(1)
 # main loop
-print(ord('h'))
 while True:
     # handle keyboard
     keys = p.getKeyboardEvents()
+
+    # space is special
     if ord(' ') in keys and keys[ord(' ')] == 3:
         if belt_hold_constraint is not None:
             p.removeConstraint(belt_hold_constraint)
@@ -78,12 +85,11 @@ while True:
         for key in keys:
             if keys[key] == 3:
                 key_ascii = chr(key)
-                print("key {} pose {}".format(key,poses[key_ascii][0]))
-                print(poses[key_ascii][1])
-                p.setJointMotorControlArray(**(poses[key_ascii][1]))
+                for kwargs in poses[key_ascii][1]:
+                    print("calling setJointMotorControlArray with kwargs",poses[key_ascii][1])
+                    p.setJointMotorControlArray(**kwargs)
     except:
-        # pass
-        raise
+        pass
 
     p.stepSimulation()
     time.sleep(dt)
