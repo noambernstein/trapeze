@@ -20,7 +20,7 @@ def fix_in_space(obj, type):
     if obj[1] == -1:
         (pos, orient) = p.getBasePositionAndOrientation(obj[0])
     else:
-        Raise("Can only fix base for now")
+        raise ValueError("Can only fix base for now")
 
     if type == 'point2point':
         c = p.createConstraint(parentBodyUniqueId=obj[0], parentLinkIndex=obj[1],
@@ -42,7 +42,7 @@ def fix_in_space(obj, type):
                 parentFramePosition=[0,0.1,0], childFramePosition=np.array(pos)-[0,0.1,0])
             ]
     else:
-        raise("Unknown fix in space type "+type)
+        raise ValueError("Unknown fix in space type "+type)
 
     return c
 
@@ -155,12 +155,14 @@ def parse_poses(flyerID, file):
 
     poses_info = ET.parse(file).getroot()
     poses = {}
+    pose_sequences = {}
     default_pose = { 'bodyIndex' : -1, 'jointIndices' : [], 'controlMode' : p.POSITION_CONTROL, 'targetPositions' : [], 'forces' : [] }
     for child in poses_info:
+        print(child.tag)
         if child.tag == 'defaults':
             for joint in child:
                 if joint.tag != 'joint':
-                    Raise("Unknown tag inside defaults "+joint.tag)
+                    raise ValueError("Unknown tag inside defaults "+joint.tag)
                 name = joint.attrib['name']
                 id = joint_ids[name]
                 value = float(joint.attrib['value'])
@@ -182,7 +184,7 @@ def parse_poses(flyerID, file):
 
             for joint in child:
                 if joint.tag != 'joint':
-                    Raise("Unknown tag inside pose "+joint.tag)
+                    raise ValueError("Unknown tag inside pose "+joint.tag)
                 joint_name=joint.attrib['name']
                 joint_id=joint_ids[joint_name]
                 arrays_index = pose['jointIndices'].index(joint_id)
@@ -198,5 +200,23 @@ def parse_poses(flyerID, file):
             # print("got pose",key, pose_name)
             # return an array of poses so it's possible to have multiple types of control, but only position implemented for now
             poses[pose_key] = (pose_name, [pose])
+        elif child.tag == 'pose_sequence':
+            pose_seq_name=child.attrib['name']
+            pose_seq_key=child.attrib['key']
+            pose_seq = [0.0]
+            cumul_wait = 0.0
+            for elem in child:
+                print("in child",elem.tag)
+                if elem.tag == 'pose':
+                    pose_seq.append(elem.attrib['key'])
+                elif elem.tag == 'wait':
+                    cumul_wait += float(elem.attrib['time'])
+                    pose_seq.append(cumul_wait)
+                else:
+                    raise ValueError("Unknown tag within pose_sequence "+elem.tag)
+            pose_sequences[pose_seq_key] = (pose_seq_name, pose_seq)
 
-    return poses
+        else:
+            raise ValueError("Unknown top level tag "+child.tag)
+
+    return (poses, pose_sequences)

@@ -32,7 +32,7 @@ if boardLinkID == -1:
     (board_edge, _) = p.getBasePositionAndOrientation(boardID)
     board_edge = np.array(board_edge)
 else:
-    Raise("Board is not a base")
+    raise ValueError("Board is not a base")
 
 offset = [0,0,-0.005]
 if do_exercise:
@@ -57,22 +57,40 @@ if len(sys.argv) > 1 and sys.argv[1] == "--exercise":
 print("ATTACHING HANDS TO FLY BAR")
 flyer_hands_attachment_constraints = attach_closest_point2point(fly_trap_id[0], flyerID, distance=0.2)
 
-def print_pose(poses, key):
-    print("key {} pose {}".format(key,poses[key][0]))
-    for pose in poses[key][1]:
+def print_pose(pose):
+    print("pose {}".format(pose[0]))
+    for pose in pose[1]:
         print("body",p.getBodyInfo(pose['bodyIndex']))
         for (joint_id, value, force) in zip(pose['jointIndices'],pose['targetPositions'],pose['forces']):
-            print("joint",p.getJointInfo(pose['bodyIndex'],joint_id)[1],value,force)
+            print("  joint",p.getJointInfo(pose['bodyIndex'],joint_id)[1],value,force)
 
-poses = parse_poses(flyerID, "poses.xml")
+def print_pose_seq(pose_sequence):
+    print("pose_sequence {}".format(pose_sequence[0]))
+    for elem in pose_sequence[1]:
+        if isinstance(elem,float):
+            print("  wait",elem)
+        else:
+            print("  key",elem)
+
+(poses, pose_sequences) = parse_poses(flyerID, "poses.xml")
 print("KNOWN POSES:")
 for key in poses:
-    print_pose(poses, key)
+    print ('key',key,' ',end='')
+    print_pose(poses[key])
+print("KNOWN POSE SEQUENCES:")
+for key in pose_sequences:
+    print ('key',key,' ',end='')
+    print_pose_seq(pose_sequences[key])
+
+def do_pose(pose):
+    for kwargs in pose[1]:
+        p.setJointMotorControlArray(**kwargs)
 
 dt=0.005
 p.setRealTimeSimulation(1)
 # main loop
 print("MAIN LOOP")
+current_pose_seq = None
 while True:
     # handle keyboard
     keys = p.getKeyboardEvents()
@@ -87,15 +105,26 @@ while True:
             for constraint in flyer_hands_attachment_constraints:
                 p.removeConstraint(constraint)
 
-    try:
-        for key in keys:
-            if keys[key] == 3:
-                key_ascii = chr(key)
-                print_pose(poses, key_ascii)
-                for kwargs in poses[key_ascii][1]:
-                    p.setJointMotorControlArray(**kwargs)
-    except:
-        pass
+    for key_ord in keys:
+        if (keys[key_ord] & p.KEY_WAS_TRIGGERED) != 0: # key down
+            key = chr(key_ord)
+            if key in poses:
+                in_pose_sequence = False
+                print_pose(poses[key])
+                do_pose(poses[key])
+            elif key in pose_sequences:
+                pose_seq_start_time = time.time()
+                print_pose_seq(pose_sequences[key])
+                current_pose_seq = pose_sequences[key][1]
+                pose_seq_cur_index = 0
+
+    if current_pose_seq is not None:
+        if (time.time() - pose_seq_start_time) >= current_pose_seq[pose_seq_cur_index]:
+            print("do_pose with key ",current_pose_seq[pose_seq_cur_index+1])
+            do_pose(poses[current_pose_seq[pose_seq_cur_index+1]])
+            pose_seq_cur_index += 2
+            if pose_seq_cur_index >= len(current_pose_seq):
+                current_pose_seq = None
 
     p.stepSimulation()
     time.sleep(dt)
