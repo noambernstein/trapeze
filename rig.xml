@@ -32,34 +32,39 @@
     <worldbody>
         <geom name='floor' pos='0 0 0' size='10 10 0.125' type='plane' material="MatPlane" condim='3'/>
 
-        <body name='fly_crane' pos='0 0 10.4' >
+        <!-- 32' high, x=0  -->
+        <body name='fly_crane' pos='0 0 9.70' >
             <geom name='fly_crane' type='cylinder' fromto='0 -1 0 0 1 0' size='0.05' />
 	    <inertial mass='0.0' />
         </body>
 
-        <body name='fly_trap' pos='2.2 0 8.7' >
+        <!-- 23' high, 13' right of fly crane -->
+        <body name='board' pos='3.94 0 6.97' size='1.0 2.0 0.05' type='plane' material='MatPlane' condim='3'  >
+            <geom name='board' type='box' pos='1.0 0 -0.05' size='1.0 2.0 0.05'  />
+	    <inertial mass='0.0' />
+        </body>
+
+        <!-- fly cable length 12' = 3.64 m -->
+        <!-- height = 8.7 m set by reasonable offset from board height -->
+        <!-- 3.64^2 = (9.7-8.7)^2 + x^2 -->
+        <body name='fly_trap' pos='3.5 0 8.7' >
             <geom name='fly_trap' type='cylinder' fromto='0 -0.75 0 0 0.75 0' size='0.01' />
 
             <body name='l_fly_cable' pos='0 -0.75 0'>
                 inertial mass='1' />
-                <geom name='l_fly_cable' type='cylinder' fromto='-0.05 0 0   -2.15 0 1.65' size='0.0025' />
+                <geom name='l_fly_cable' type='cylinder' fromto='-0.05 0 0   -3.5 0 1.0' size='0.0025' />
                 <joint name='l_fly_cable_bar_x' type='hinge' pos='0 0 0' axis='1 0 0' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
                 <joint name='l_fly_cable_bar_y' type='hinge' pos='0 0 0' axis='0 1 0' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
                 <joint name='l_fly_cable_bar_z' type='hinge' pos='0 0 0' axis='0 0 1' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
             </body>
             <body name='r_fly_cable' pos='0 0.75 0'>
                 inertial mass='1' />
-                <geom name='r_fly_cable' type='cylinder' fromto='-0.05 0 0   -2.15 0 1.65' size='0.0025' />
+                <geom name='r_fly_cable' type='cylinder' fromto='-0.05 0 0   -3.5 0 1.0' size='0.0025' />
                 <!-- <joint name='r_fly_cable_bar_attach' type='ball' axis='0 0 1' range='-180 180' pos='0 0 0' damping='0' stiffness='0' armature='0.001' /> -->
                 <joint name='r_fly_cable_bar_x' type='hinge' pos='0 0 0' axis='1 0 0' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
                 <joint name='r_fly_cable_bar_y' type='hinge' pos='0 0 0' axis='0 1 0' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
                 <joint name='r_fly_cable_bar_z' type='hinge' pos='0 0 0' axis='0 0 1' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
             </body>
-        </body>
-
-        <body name='board' pos='3.0 0 7.0' size='1.0 2.0 0.05' type='plane' material='MatPlane' condim='3'  >
-            <geom name='board' type='box' pos='1.0 0 -0.05' size='1.0 2.0 0.05'  />
-	    <inertial mass='0.0' />
         </body>
 
 
