@@ -34,7 +34,7 @@ if boardLinkID == -1:
 else:
     raise ValueError("Board is not a base")
 
-offset = [0,0,-0.005]
+offset = [0.5,0,-0.01]
 if do_exercise:
     offset = [1,0,1]
 
@@ -54,7 +54,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "--exercise":
     exercise(flyerID, sys.argv[2:])
 
 # grab on
-print("ATTACHING HANDS TO FLY BAR")
+## print("ATTACHING HANDS TO FLY BAR")
 flyer_hands_attachment_constraints = attach_closest_point2point(fly_trap_id[0], flyerID, distance=0.2)
 
 def print_pose(pose):
@@ -85,6 +85,7 @@ for key in pose_sequences:
 def do_pose(pose):
     for kwargs in pose[1]:
         p.setJointMotorControlArray(**kwargs)
+
 
 dt=0.005
 p.setRealTimeSimulation(1)
