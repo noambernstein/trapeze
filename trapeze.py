@@ -93,20 +93,22 @@ while time.time()-t0 < 0.4:
 print("ATTACHING HANDS TO FLY BAR")
 flyer_hands_attachment_constraints = attach_closest_point2point(fly_trap_id[0], flyerID, distance=0.3)
 
+def takeoff_release_hep():
+    global belt_hold_constraint, flyer_hands_attachment_constraints
+    if belt_hold_constraint is not None: # takeoff
+        p.removeConstraint(belt_hold_constraint)
+        belt_hold_constraint = None
+        p.resetBaseVelocity(flyerID,linearVelocity=[0,0,3],angularVelocity=[0,2,0])
+        sim_state.do_key('7')
+    else: # release
+        for constraint in flyer_hands_attachment_constraints:
+            p.removeConstraint(constraint)
+
+sim_state.register_key(key=' ', name='hep', action=takeoff_release_hep)
+
 while True:
     # handle keyboard
     keys = p.getKeyboardEvents()
-
-    # space is special
-    if ord(' ') in keys and keys[ord(' ')] == 3:
-        if belt_hold_constraint is not None:
-            p.removeConstraint(belt_hold_constraint)
-            belt_hold_constraint = None
-            p.resetBaseVelocity(flyerID,linearVelocity=[0,0,3],angularVelocity=[0,2,0])
-            sim_state.do_key('7')
-        else:
-            for constraint in flyer_hands_attachment_constraints:
-                p.removeConstraint(constraint)
 
     for key_ord in keys:
         if (keys[key_ord] & p.KEY_WAS_TRIGGERED) != 0: # key down

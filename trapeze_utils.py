@@ -217,6 +217,7 @@ def print_pose_seq(pose_sequence):
             print("  key",elem)
 
 class SimulationState:
+
     def __init__(self, poses, pose_sequences):
         self.current_pose_seq = None
         self.pose_seq_start_time=-1
@@ -227,13 +228,15 @@ class SimulationState:
         self.actions_by_name = {}
         self.actions_by_key = {}
         for pose_key in poses:
-            self.actions_by_key[pose_key] = (self.start_pose, poses[pose_key])
-            self.actions_by_name[poses[pose_key][0]] = (self.start_pose, poses[pose_key])
+            self.register_key(pose_key, poses[pose_key][0], self.start_pose, pose=poses[pose_key])
         for pose_seq_key in pose_sequences:
-            self.actions_by_key[pose_seq_key] = (self.start_pose_seq, pose_sequences[pose_seq_key])
-            self.actions_by_name[pose_sequences[pose_seq_key][0]] = (self.start_pose_seq, pose_sequences[pose_seq_key])
+            self.register_key(pose_seq_key, pose_sequences[pose_seq_key][0], self.start_pose_seq, pose_sequence=pose_sequences[pose_seq_key])
 
-    def start_pose(self,pose):
+    def register_key(self, key, name, action, **kwargs):
+        self.actions_by_key[key] = (action, kwargs)
+        self.actions_by_name[name] = (action, kwargs)
+
+    def start_pose(self, pose):
         for kwargs in pose[1]:
             p.setJointMotorControlArray(**kwargs)
 
@@ -247,9 +250,9 @@ class SimulationState:
         print("key",key)
         try:
             action = self.actions_by_key[key]
-            print("doing key",key,"action",action)
-            action[0](action[1])
-        except:
+            print("doing key",key,"action[0]",action[0],"action[1]",action[1])
+            action[0](**action[1])
+        except KeyError:
             pass
 
     def do_pose_seq_stuff(self):
