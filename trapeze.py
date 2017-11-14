@@ -76,9 +76,9 @@ dt=0.005
 p.setRealTimeSimulation(1)
 # main loop
 print("MAIN LOOP")
-sim = SimulationState(poses, pose_sequences)
+sim_state = SimulationState(poses, pose_sequences)
 
-do_pose(poses['r'])
+sim_state.do_key('r')
 
 # settle down bar position
 t0 = time.time()
@@ -103,16 +103,16 @@ while True:
             p.removeConstraint(belt_hold_constraint)
             belt_hold_constraint = None
             p.resetBaseVelocity(flyerID,linearVelocity=[0,0,3],angularVelocity=[0,2,0])
-            do_pose(poses['7'])
+            sim_state.do_key('7')
         else:
             for constraint in flyer_hands_attachment_constraints:
                 p.removeConstraint(constraint)
 
     for key_ord in keys:
         if (keys[key_ord] & p.KEY_WAS_TRIGGERED) != 0: # key down
-            sim.do_key(chr(key_ord))
+            sim_state.do_key(chr(key_ord))
 
-    sim.do_pose_seq_stuff()
+    sim_state.do_pose_seq_stuff()
 
     p.stepSimulation()
     time.sleep(dt)

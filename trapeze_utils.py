@@ -216,10 +216,6 @@ def print_pose_seq(pose_sequence):
         else:
             print("  key",elem)
 
-def do_pose(pose):
-    for kwargs in pose[1]:
-        p.setJointMotorControlArray(**kwargs)
-
 class SimulationState:
     def __init__(self, poses, pose_sequences):
         self.current_pose_seq = None
@@ -228,25 +224,40 @@ class SimulationState:
         self.in_pose_sequence = False
         self.poses = poses
         self.pose_sequences = pose_sequences
+        self.actions_by_name = {}
+        self.actions_by_key = {}
+        for pose_key in poses:
+            self.actions_by_key[pose_key] = (self.start_pose, poses[pose_key])
+            self.actions_by_name[poses[pose_key][0]] = (self.start_pose, poses[pose_key])
+        for pose_seq_key in pose_sequences:
+            self.actions_by_key[pose_seq_key] = (self.start_pose_seq, pose_sequences[pose_seq_key])
+            self.actions_by_name[pose_sequences[pose_seq_key][0]] = (self.start_pose_seq, pose_sequences[pose_seq_key])
+
+    def start_pose(self,pose):
+        for kwargs in pose[1]:
+            p.setJointMotorControlArray(**kwargs)
+
+    def start_pose_seq(self,pose_sequence):
+        self.pose_seq_start_time = time.time()
+        print_pose_seq(pose_sequence)
+        self.current_pose_seq = pose_sequence[1]
+        self.pose_seq_cur_index = 0
 
     def do_key(self,key):
         print("key",key)
-        if key in self.poses:
-            self.in_pose_sequence = False
-            print_pose(self.poses[key])
-            do_pose(self.poses[key])
-        elif key in self.pose_sequences:
-            self.pose_seq_start_time = time.time()
-            print_pose_seq(self.pose_sequences[key])
-            self.current_pose_seq = self.pose_sequences[key][1]
-            self.pose_seq_cur_index = 0
+        try:
+            action = self.actions_by_key[key]
+            print("doing key",key,"action",action)
+            action[0](action[1])
+        except:
+            pass
 
     def do_pose_seq_stuff(self):
         if self.current_pose_seq is not None:
             if (time.time() - self.pose_seq_start_time) >= self.current_pose_seq[self.pose_seq_cur_index]:
-                print("do_pose with key ",self.current_pose_seq[self.pose_seq_cur_index+1])
+                print("start_pose with key ",self.current_pose_seq[self.pose_seq_cur_index+1])
                 self.do_key(self.current_pose_seq[self.pose_seq_cur_index+1])
-                # do_pose(self.poses[self.current_pose_seq[self.pose_seq_cur_index+1]])
+                # start_pose(self.poses[self.current_pose_seq[self.pose_seq_cur_index+1]])
                 self.pose_seq_cur_index += 2
                 if self.pose_seq_cur_index >= len(self.current_pose_seq):
                     self.current_pose_seq = None
