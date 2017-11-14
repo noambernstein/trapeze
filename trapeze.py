@@ -34,7 +34,7 @@ if boardLinkID == -1:
 else:
     raise ValueError("Board is not a base")
 
-offset = [0.5,0,-0.01]
+offset = [-0.01,0,-0.05]
 if do_exercise:
     offset = [1,0,1]
 
@@ -86,6 +86,7 @@ def do_pose(pose):
     for kwargs in pose[1]:
         p.setJointMotorControlArray(**kwargs)
 
+do_pose(poses['7'])
 
 dt=0.005
 p.setRealTimeSimulation(1)
