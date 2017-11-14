@@ -30,7 +30,7 @@ print(flyerID,rigIDs)
 fly_crane_id=find_link('fly_crane')
 fly_trap_id=find_link('fly_trap')
 print("ATTACHING FLY TRAP TO CRANE")
-fly_trap_attachment_constraints = attach_closest_point2point(fly_crane_id[0], fly_trap_id[0], distance=0.5)
+fly_trap_attachment_constraints = attach_closest_point2point(fly_crane_id[0], fly_trap_id[0], distance=0.2)
 
 # find board edge
 (boardID, boardLinkID) = find_link('board')
@@ -40,17 +40,18 @@ if boardLinkID == -1:
 else:
     raise ValueError("Board is not a base")
 
-offset = [-0.01,0,-0.05]
+offset = [-0.30,0,-0.08]
 if do_exercise:
     offset = [1,0,1]
 
 # move flyer to edge of board and face the right way
 (flyer_pos,flyer_orient) = p.getBasePositionAndOrientation(flyerID)
 p.resetBasePositionAndOrientation(flyerID,flyer_pos + board_edge + offset,
-    p.multiplyTransforms([0,0,0],flyer_orient,[0,0,0],p.getQuaternionFromEuler([0,0,180*deg]))[1])
+    p.multiplyTransforms([0,0,0],flyer_orient,[0,0,0],p.getQuaternionFromEuler([0,20*deg,180*deg]))[1])
 
-# apply belt hold
+# apply belt hold and hold bar in place
 belt_hold_constraint = fix_in_space(find_link('torso'), 'point2point')
+bar_serve_hold = fix_in_space(find_link('fly_trap'), 'point2point')
 
 # get ready for simulation
 p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=0, cameraPitch=5, cameraTargetPosition=[0,0,board_edge[2]])
@@ -58,25 +59,6 @@ p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=0, cameraPitch=5, camer
 # exercise if requested
 if len(sys.argv) > 1 and sys.argv[1] == "--exercise":
     exercise(flyerID, sys.argv[2:])
-
-# grab on
-## print("ATTACHING HANDS TO FLY BAR")
-flyer_hands_attachment_constraints = attach_closest_point2point(fly_trap_id[0], flyerID, distance=0.2)
-
-def print_pose(pose):
-    print("pose {}".format(pose[0]))
-    for pose in pose[1]:
-        print("body",p.getBodyInfo(pose['bodyIndex']))
-        for (joint_id, value, force) in zip(pose['jointIndices'],pose['targetPositions'],pose['forces']):
-            print("  joint",p.getJointInfo(pose['bodyIndex'],joint_id)[1],value,force)
-
-def print_pose_seq(pose_sequence):
-    print("pose_sequence {}".format(pose_sequence[0]))
-    for elem in pose_sequence[1]:
-        if isinstance(elem,float):
-            print("  wait",elem)
-        else:
-            print("  key",elem)
 
 (poses, pose_sequences) = parse_poses(flyerID, "poses.xml")
 print("KNOWN POSES:")
@@ -88,17 +70,28 @@ for key in pose_sequences:
     print ('key',key,' ',end='')
     print_pose_seq(pose_sequences[key])
 
-def do_pose(pose):
-    for kwargs in pose[1]:
-        p.setJointMotorControlArray(**kwargs)
 
-do_pose(poses['r'])
 
 dt=0.005
 p.setRealTimeSimulation(1)
 # main loop
 print("MAIN LOOP")
-current_pose_seq = None
+sim = SimulationState(poses, pose_sequences)
+
+# settle down bar position
+t0 = time.time()
+while time.time()-t0 < 0.2:
+    if time.time() - t0 > 0.1 and bar_serve_hold is not None:
+        p.removeConstraint(bar_serve_hold)
+        base_serve_hold = None
+    p.stepSimulation()
+
+do_pose(poses['r'])
+
+# grab on
+print("ATTACHING HANDS TO FLY BAR")
+flyer_hands_attachment_constraints = attach_closest_point2point(fly_trap_id[0], flyerID, distance=0.3)
+
 while True:
     # handle keyboard
     keys = p.getKeyboardEvents()
@@ -108,7 +101,7 @@ while True:
         if belt_hold_constraint is not None:
             p.removeConstraint(belt_hold_constraint)
             belt_hold_constraint = None
-            p.resetBaseVelocity(flyerID,linearVelocity=[0,0,2],angularVelocity=[0,1,0])
+            p.resetBaseVelocity(flyerID,linearVelocity=[0,0,3],angularVelocity=[0,2,0])
             do_pose(poses['7'])
         else:
             for constraint in flyer_hands_attachment_constraints:
@@ -116,24 +109,9 @@ while True:
 
     for key_ord in keys:
         if (keys[key_ord] & p.KEY_WAS_TRIGGERED) != 0: # key down
-            key = chr(key_ord)
-            if key in poses:
-                in_pose_sequence = False
-                print_pose(poses[key])
-                do_pose(poses[key])
-            elif key in pose_sequences:
-                pose_seq_start_time = time.time()
-                print_pose_seq(pose_sequences[key])
-                current_pose_seq = pose_sequences[key][1]
-                pose_seq_cur_index = 0
+            sim.do_key(chr(key_ord))
 
-    if current_pose_seq is not None:
-        if (time.time() - pose_seq_start_time) >= current_pose_seq[pose_seq_cur_index]:
-            print("do_pose with key ",current_pose_seq[pose_seq_cur_index+1])
-            do_pose(poses[current_pose_seq[pose_seq_cur_index+1]])
-            pose_seq_cur_index += 2
-            if pose_seq_cur_index >= len(current_pose_seq):
-                current_pose_seq = None
+    sim.do_pose_seq_stuff()
 
     p.stepSimulation()
     time.sleep(dt)

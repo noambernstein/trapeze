@@ -61,7 +61,7 @@ def attach_closest_point2point(obj_A_id, obj_B_id, distance=0.1):
             s = p.getLinkState(obj_A_id, obj_A_link_id)
             obj_A_CoM_pos_orient = s[0:2]
         if obj_B_link_id == -1:
-            obj_B_CoM_pos_orient = p.getBasePositionBndOrientation(obj_B_id)
+            obj_B_CoM_pos_orient = p.getBasePositionAndOrientation(obj_B_id)
         else:
             s = p.getLinkState(obj_B_id, obj_B_link_id)
             obj_B_CoM_pos_orient = s[0:2]
@@ -200,3 +200,53 @@ def parse_poses(flyerID, file):
             raise ValueError("Unknown top level tag "+child.tag)
 
     return (poses, pose_sequences)
+
+def print_pose(pose):
+    print("pose {}".format(pose[0]))
+    for pose in pose[1]:
+        print("body",p.getBodyInfo(pose['bodyIndex']))
+        for (joint_id, value, force) in zip(pose['jointIndices'],pose['targetPositions'],pose['forces']):
+            print("  joint",p.getJointInfo(pose['bodyIndex'],joint_id)[1],value,force)
+
+def print_pose_seq(pose_sequence):
+    print("pose_sequence {}".format(pose_sequence[0]))
+    for elem in pose_sequence[1]:
+        if isinstance(elem,float):
+            print("  wait",elem)
+        else:
+            print("  key",elem)
+
+def do_pose(pose):
+    for kwargs in pose[1]:
+        p.setJointMotorControlArray(**kwargs)
+
+class SimulationState:
+    def __init__(self, poses, pose_sequences):
+        self.current_pose_seq = None
+        self.pose_seq_start_time=-1
+        self.pose_seq_cur_index=-1
+        self.in_pose_sequence = False
+        self.poses = poses
+        self.pose_sequences = pose_sequences
+
+    def do_key(self,key):
+        print("key",key)
+        if key in self.poses:
+            self.in_pose_sequence = False
+            print_pose(self.poses[key])
+            do_pose(self.poses[key])
+        elif key in self.pose_sequences:
+            self.pose_seq_start_time = time.time()
+            print_pose_seq(self.pose_sequences[key])
+            self.current_pose_seq = self.pose_sequences[key][1]
+            self.pose_seq_cur_index = 0
+
+    def do_pose_seq_stuff(self):
+        if self.current_pose_seq is not None:
+            if (time.time() - self.pose_seq_start_time) >= self.current_pose_seq[self.pose_seq_cur_index]:
+                print("do_pose with key ",self.current_pose_seq[self.pose_seq_cur_index+1])
+                self.do_key(self.current_pose_seq[self.pose_seq_cur_index+1])
+                # do_pose(self.poses[self.current_pose_seq[self.pose_seq_cur_index+1]])
+                self.pose_seq_cur_index += 2
+                if self.pose_seq_cur_index >= len(self.current_pose_seq):
+                    self.current_pose_seq = None
