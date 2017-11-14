@@ -78,15 +78,16 @@ p.setRealTimeSimulation(1)
 print("MAIN LOOP")
 sim = SimulationState(poses, pose_sequences)
 
+do_pose(poses['r'])
+
 # settle down bar position
 t0 = time.time()
-while time.time()-t0 < 0.2:
-    if time.time() - t0 > 0.1 and bar_serve_hold is not None:
+while time.time()-t0 < 0.4:
+    if time.time() - t0 > 0.2 and bar_serve_hold is not None:
         p.removeConstraint(bar_serve_hold)
         base_serve_hold = None
     p.stepSimulation()
 
-do_pose(poses['r'])
 
 # grab on
 print("ATTACHING HANDS TO FLY BAR")
