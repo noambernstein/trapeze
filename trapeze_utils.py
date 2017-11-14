@@ -48,7 +48,6 @@ def fix_in_space(obj, type):
 
 def attach_closest_point2point(obj_A_id, obj_B_id, distance=0.1):
     closest_points = p.getClosestPoints(bodyA=obj_A_id, bodyB=obj_B_id, distance=distance)
-    # print "got closest",obj_A_id, obj_B_id, len(closest_points)
     attachment_constraints = []
     for closest_pair in closest_points:
         obj_A_link_id = closest_pair[3]
@@ -56,38 +55,19 @@ def attach_closest_point2point(obj_A_id, obj_B_id, distance=0.1):
         obj_A_pos_world = np.array(closest_pair[5])
         obj_B_pos_world = np.array(closest_pair[6])
 
-        # print "obj A ", obj_A_id, obj_A_link_id
-        # print "obj B ", obj_B_id, obj_B_link_id
-        # print "obj_A_pos_world", obj_A_pos_world
-        # print "obj_B_pos_world", obj_B_pos_world
-
         if obj_A_link_id == -1:
             obj_A_CoM_pos_orient = p.getBasePositionAndOrientation(obj_A_id)
         else:
             s = p.getLinkState(obj_A_id, obj_A_link_id)
-            # print "obj A",s
-            # print p.getJointInfo(obj_A_id, obj_A_link_id)
             obj_A_CoM_pos_orient = s[0:2]
         if obj_B_link_id == -1:
             obj_B_CoM_pos_orient = p.getBasePositionBndOrientation(obj_B_id)
         else:
             s = p.getLinkState(obj_B_id, obj_B_link_id)
-            # print p.getJointInfo(obj_B_id, obj_B_link_id)
-            # print "obj B",s
             obj_B_CoM_pos_orient = s[0:2]
-
-        # print "obj_A_CoM pos,orient", obj_A_CoM_pos_orient
-        # print "obj_A euler", p.getEulerFromQuaternion(obj_A_CoM_pos_orient[1])
-        # print "obj_B_CoM pos,orient", obj_B_CoM_pos_orient
-        # print "obj_B euler", p.getEulerFromQuaternion(obj_B_CoM_pos_orient[1])
 
         parent_pos =  p.multiplyTransforms([0,0,0], obj_A_CoM_pos_orient[1], obj_A_pos_world-np.array(obj_A_CoM_pos_orient[0]), [0,0,0,1])[0]
         child_pos =  p.multiplyTransforms([0,0,0], obj_B_CoM_pos_orient[1], obj_B_pos_world-np.array(obj_B_CoM_pos_orient[0]), [0,0,0,1])[0]
-
-        # print "raw parent pos",obj_A_pos_world-np.array(obj_A_CoM_pos_orient[0])
-        # print "parent_pos", parent_pos
-        # print "raw child pos",obj_B_pos_world-np.array(obj_B_CoM_pos_orient[0])
-        # print "child_pos", child_pos
 
         attachment_constraints.append(
             p.createConstraint(

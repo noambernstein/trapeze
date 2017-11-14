@@ -18,6 +18,12 @@ p.setGravity(0,0,-9.8)
 flyerID = p.loadMJCF("flyer.xml")[0]
 rigIDs = p.loadMJCF("rig.xml")
 
+for j in range(p.getNumJoints(flyerID)):
+    p.changeDynamics(flyerID,j,linearDamping=0.01, angularDamping=0.0)
+for i in rigIDs:
+    for j in range(p.getNumJoints(i)):
+        p.changeDynamics(i,j,linearDamping=0.01, angularDamping=0.0)
+
 print(flyerID,rigIDs)
 
 # attach fly trap to crane
@@ -86,7 +92,7 @@ def do_pose(pose):
     for kwargs in pose[1]:
         p.setJointMotorControlArray(**kwargs)
 
-do_pose(poses['7'])
+do_pose(poses['r'])
 
 dt=0.005
 p.setRealTimeSimulation(1)
@@ -103,6 +109,7 @@ while True:
             p.removeConstraint(belt_hold_constraint)
             belt_hold_constraint = None
             p.resetBaseVelocity(flyerID,linearVelocity=[0,0,2],angularVelocity=[0,1,0])
+            do_pose(poses['7'])
         else:
             for constraint in flyer_hands_attachment_constraints:
                 p.removeConstraint(constraint)
