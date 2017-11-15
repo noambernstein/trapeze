@@ -10,6 +10,7 @@ from trapeze_utils import *
 do_exercise = len(sys.argv) > 1 and sys.argv[1] == "--exercise"
 
 physicsClient = p.connect(p.GUI) #or p.DIRECT for non-graphical version
+p.setPhysicsEngineParameter(numSolverIterations=1000)
 
 # p.setGravity(0,0,0)
 p.setGravity(0,0,-9.8)
@@ -72,20 +73,20 @@ for key in pose_sequences:
 
 
 
-dt=0.005
-p.setRealTimeSimulation(1)
+dt=0.01
 # main loop
 print("MAIN LOOP")
 sim_state = SimulationState(poses, pose_sequences)
 
 sim_state.do_key('r')
 
+p.setTimeStep(dt)
 # settle down bar position
 t0 = time.time()
 while time.time()-t0 < 0.4:
     if time.time() - t0 > 0.2 and bar_serve_hold is not None:
         p.removeConstraint(bar_serve_hold)
-        base_serve_hold = None
+        bar_serve_hold = None
     p.stepSimulation()
 
 
@@ -95,6 +96,7 @@ flyer_hands_attachment_constraints = attach_closest_point2point(fly_trap_id[0], 
 
 def takeoff_release_hep():
     global belt_hold_constraint, flyer_hands_attachment_constraints
+
     if belt_hold_constraint is not None: # takeoff
         p.removeConstraint(belt_hold_constraint)
         belt_hold_constraint = None
@@ -104,8 +106,13 @@ def takeoff_release_hep():
         for constraint in flyer_hands_attachment_constraints:
             p.removeConstraint(constraint)
 
-sim_state.register_key(key=' ', name='hep', action=takeoff_release_hep)
+def gravity():
+    p.setGravity(0,0,0)
 
+sim_state.register_key(key=' ', name='hep', action=takeoff_release_hep)
+sim_state.register_key(key='w', name='gravity', action=gravity)
+
+p.setRealTimeSimulation(1)
 while True:
     # handle keyboard
     keys = p.getKeyboardEvents()
@@ -114,9 +121,7 @@ while True:
         if (keys[key_ord] & p.KEY_WAS_TRIGGERED) != 0: # key down
             sim_state.do_key(chr(key_ord))
 
+    # do pose sequence things
     sim_state.do_pose_seq_stuff()
-
-    p.stepSimulation()
-    time.sleep(dt)
 
 p.disconnect()
