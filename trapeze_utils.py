@@ -135,7 +135,7 @@ def parse_poses(flyerID, file):
 
     poses_info = ET.parse(file).getroot()
     poses = {}
-    pose_sequences = {}
+    key_sequences = {}
     default_pose = { 'bodyIndex' : -1, 'jointIndices' : [], 'controlMode' : p.POSITION_CONTROL, 'targetPositions' : [], 'forces' : [] }
     for child in poses_info:
         print(child.tag)
@@ -180,26 +180,26 @@ def parse_poses(flyerID, file):
             # print("got pose",key, pose_name)
             # return an array of poses so it's possible to have multiple types of control, but only position implemented for now
             poses[pose_key] = (pose_name, [pose])
-        elif child.tag == 'pose_sequence':
-            pose_seq_name=child.attrib['name']
-            pose_seq_key=child.attrib['key']
-            pose_seq = [0.0]
+        elif child.tag == 'key_sequence':
+            key_seq_name=child.attrib['name']
+            key_seq_key=child.attrib['key']
+            key_seq = [0.0]
             cumul_wait = 0.0
             for elem in child:
                 print("in child",elem.tag)
                 if elem.tag == 'pose':
-                    pose_seq.append(elem.attrib['key'])
+                    key_seq.append(elem.attrib['key'])
                 elif elem.tag == 'wait':
                     cumul_wait += float(elem.attrib['time'])
-                    pose_seq.append(cumul_wait)
+                    key_seq.append(cumul_wait)
                 else:
-                    raise ValueError("Unknown tag within pose_sequence "+elem.tag)
-            pose_sequences[pose_seq_key] = (pose_seq_name, pose_seq)
+                    raise ValueError("Unknown tag within key_sequence "+elem.tag)
+            key_sequences[key_seq_key] = (key_seq_name, key_seq)
 
         else:
             raise ValueError("Unknown top level tag "+child.tag)
 
-    return (poses, pose_sequences)
+    return (poses, key_sequences)
 
 def print_pose(pose):
     print("pose {}".format(pose[0]))
@@ -208,9 +208,9 @@ def print_pose(pose):
         for (joint_id, value, force) in zip(pose['jointIndices'],pose['targetPositions'],pose['forces']):
             print("  joint",p.getJointInfo(pose['bodyIndex'],joint_id)[1],value,force)
 
-def print_pose_seq(pose_sequence):
-    print("pose_sequence {}".format(pose_sequence[0]))
-    for elem in pose_sequence[1]:
+def print_key_seq(key_sequence):
+    print("key_sequence {}".format(key_sequence[0]))
+    for elem in key_sequence[1]:
         if isinstance(elem,float):
             print("  wait",elem)
         else:
@@ -218,19 +218,19 @@ def print_pose_seq(pose_sequence):
 
 class SimulationState:
 
-    def __init__(self, poses, pose_sequences):
-        self.current_pose_seq = None
-        self.pose_seq_start_time=-1
-        self.pose_seq_cur_index=-1
-        self.in_pose_sequence = False
+    def __init__(self, poses, key_sequences):
+        self.current_key_seq = None
+        self.key_seq_start_time=-1
+        self.key_seq_cur_index=-1
+        self.in_key_sequence = False
         self.poses = poses
-        self.pose_sequences = pose_sequences
+        self.key_sequences = key_sequences
         self.actions_by_name = {}
         self.actions_by_key = {}
         for pose_key in poses:
             self.register_key(pose_key, poses[pose_key][0], self.start_pose, pose=poses[pose_key])
-        for pose_seq_key in pose_sequences:
-            self.register_key(pose_seq_key, pose_sequences[pose_seq_key][0], self.start_pose_seq, pose_sequence=pose_sequences[pose_seq_key])
+        for key_seq_key in key_sequences:
+            self.register_key(key_seq_key, key_sequences[key_seq_key][0], self.start_key_seq, key_sequence=key_sequences[key_seq_key])
 
     def register_key(self, key, name, action, **kwargs):
         self.actions_by_key[key] = (action, kwargs)
@@ -240,11 +240,11 @@ class SimulationState:
         for kwargs in pose[1]:
             p.setJointMotorControlArray(**kwargs)
 
-    def start_pose_seq(self,pose_sequence):
-        self.pose_seq_start_time = time.time()
-        print_pose_seq(pose_sequence)
-        self.current_pose_seq = pose_sequence[1]
-        self.pose_seq_cur_index = 0
+    def start_key_seq(self,key_sequence):
+        self.key_seq_start_time = time.time()
+        print_key_seq(key_sequence)
+        self.current_key_seq = key_sequence[1]
+        self.key_seq_cur_index = 0
 
     def do_key(self,key):
         print("key",key)
@@ -255,12 +255,12 @@ class SimulationState:
         except KeyError:
             pass
 
-    def do_pose_seq_stuff(self):
-        if self.current_pose_seq is not None:
-            if (time.time() - self.pose_seq_start_time) >= self.current_pose_seq[self.pose_seq_cur_index]:
-                print("start_pose with key ",self.current_pose_seq[self.pose_seq_cur_index+1])
-                self.do_key(self.current_pose_seq[self.pose_seq_cur_index+1])
-                # start_pose(self.poses[self.current_pose_seq[self.pose_seq_cur_index+1]])
-                self.pose_seq_cur_index += 2
-                if self.pose_seq_cur_index >= len(self.current_pose_seq):
-                    self.current_pose_seq = None
+    def do_key_seq_stuff(self):
+        if self.current_key_seq is not None:
+            if (time.time() - self.key_seq_start_time) >= self.current_key_seq[self.key_seq_cur_index]:
+                print("start_pose with key ",self.current_key_seq[self.key_seq_cur_index+1])
+                self.do_key(self.current_key_seq[self.key_seq_cur_index+1])
+                # start_pose(self.poses[self.current_key_seq[self.key_seq_cur_index+1]])
+                self.key_seq_cur_index += 2
+                if self.key_seq_cur_index >= len(self.current_key_seq):
+                    self.current_key_seq = None

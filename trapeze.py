@@ -61,22 +61,22 @@ p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=0, cameraPitch=5, camer
 if len(sys.argv) > 1 and sys.argv[1] == "--exercise":
     exercise(flyerID, sys.argv[2:])
 
-(poses, pose_sequences) = parse_poses(flyerID, "poses.xml")
+(poses, key_sequences) = parse_poses(flyerID, "poses.xml")
 print("KNOWN POSES:")
 for key in poses:
     print ('key',key,' ',end='')
     print_pose(poses[key])
 print("KNOWN POSE SEQUENCES:")
-for key in pose_sequences:
+for key in key_sequences:
     print ('key',key,' ',end='')
-    print_pose_seq(pose_sequences[key])
+    print_key_seq(key_sequences[key])
 
 
 
 dt=0.01
 # main loop
 print("MAIN LOOP")
-sim_state = SimulationState(poses, pose_sequences)
+sim_state = SimulationState(poses, key_sequences)
 
 sim_state.do_key('r')
 
@@ -100,7 +100,7 @@ def takeoff_release_hep():
     if belt_hold_constraint is not None: # takeoff
         p.removeConstraint(belt_hold_constraint)
         belt_hold_constraint = None
-        p.resetBaseVelocity(flyerID,linearVelocity=[0,0,3],angularVelocity=[0,2,0])
+        p.resetBaseVelocity(flyerID,linearVelocity=[0,0,3],angularVelocity=[0,1.5,0])
         sim_state.do_key('7')
     else: # release
         for constraint in flyer_hands_attachment_constraints:
@@ -108,6 +108,7 @@ def takeoff_release_hep():
 
 def gravity():
     p.setGravity(0,0,0)
+    p.resetBaseVelocity(flyerID,linearVelocity=[0,0,0],angularVelocity=[0,0,0])
 
 sim_state.register_key(key=' ', name='hep', action=takeoff_release_hep)
 sim_state.register_key(key='w', name='gravity', action=gravity)
@@ -122,6 +123,6 @@ while True:
             sim_state.do_key(chr(key_ord))
 
     # do pose sequence things
-    sim_state.do_pose_seq_stuff()
+    sim_state.do_key_seq_stuff()
 
 p.disconnect()
