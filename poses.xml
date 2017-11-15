@@ -54,7 +54,7 @@
         <joint name='l_shoulder1' value='-20'/>
         <joint name='r_shoulder1' value='-20'/>
     </pose>
-    <pose key='8' name='seven' >
+    <pose key='8' name='seven_hips' >
         <joint name='l_shoulder1' value='-20'/>
         <joint name='r_shoulder1' value='-20'/>
         <joint name='l_hip_y' value='10'/>
@@ -106,68 +106,68 @@
         <joint name='r_hip_y' value='70' />
     </pose>
 
-    <key_sequence key='1' name='swing_front_end' >
+    <action_sequence key='1' name='swing_front_end' >
         <pose key='s' />
         <wait time='0.6' />
-        <pose key='c' />
+        <pose name='curl_up' />
         <wait time='0.4' />
-        <pose key='o' />
+        <pose name='force_out' />
         <wait time='0.1' />
-        <pose key='f' />
-    </key_sequence>
+        <pose name='flat' />
+    </action_sequence>
 
-    <key_sequence key='2' name='swing_back_end' >
-        <pose key='h' />
+    <action_sequence key='2' name='swing_back_end' >
+        <pose name='hollow' />
         <wait time='0.2' />
-        <pose key='s' />
+        <pose name='sweep' />
         <wait time='0.4' />
-        <pose key='8' />
-    </key_sequence>
+        <pose name='seven_hips' />
+    </action_sequence>
 
-    <key_sequence key='3' name='full_swing' >
-        <pose key='s' />
+    <action_sequence key='3' name='full_swing' >
+        <pose name='sweep' />
         <wait time='0.6' />
-        <pose key='c' />
+        <pose name='curl_up' />
         <wait time='0.4' />
-        <pose key='d' />
+        <pose name='curl_up_elbows' />
         <wait time='0.1' />
-        <pose key='p' />
+        <pose name='force_out_elbows' />
         <wait time='0.2' />
-        <pose key='o' />
+        <pose name='force_out' />
         <wait time='0.1' />
-        <pose key='f' />
+        <pose name='flat' />
 
         <wait time='1.2' />
-        <pose key='h' />
+        <pose name='hollow' />
         <wait time='0.3' />
-        <pose key='s' />
+        <pose name='sweep' />
         <wait time='0.3' />
-        <pose key='8' />
-    </key_sequence>
+        <pose name='seven_hips' />
+    </action_sequence>
 
-    <key_sequence key='4' name='takeoff_full_swing' >
+    <action_sequence key='4' name='takeoff_full_swing' >
         <pose key=' ' />
         <wait time='0.9' />
 
-        <pose key='s' />
+        <pose name='sweep' />
         <wait time='0.6' />
-        <pose key='c' />
+        <pose name='curl_up' />
         <wait time='0.4' />
-        <pose key='d' />
+        <pose name='curl_up_elbows' />
         <wait time='0.1' />
-        <pose key='p' />
+        <pose name='force_out_elbows' />
         <wait time='0.2' />
-        <pose key='o' />
+        <pose name='force_out' />
         <wait time='0.1' />
-        <pose key='f' />
+        <pose name='flat' />
 
         <wait time='1.2' />
-        <pose key='h' />
+        <pose name='hollow' />
         <wait time='0.3' />
-        <pose key='s' />
+        <pose name='sweep' />
         <wait time='0.3' />
-        <pose key='8' />
-    </key_sequence>
+        <pose name='seven_hips' />
+    </action_sequence>
 
     <pose key='v' name='hip_forward' >
         <joint name='l_hip_y' value='40' />
@@ -193,7 +193,7 @@
         <joint name='l_shoulder2' value='45' />
         <joint name='r_shoulder2' value='-45' />
     </pose>
-    <key_sequence key='m' name='miss' >
+    <action_sequence key='m' name='miss' >
         <pose key='v' />
         <wait time='1.2' />
         <pose key='b' />
@@ -201,6 +201,6 @@
         <pose key='n' />
         <wait time='1.2' />
         <pose key='x' />
-    </key_sequence>
+    </action_sequence>
 
 </poses>

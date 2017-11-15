@@ -134,8 +134,8 @@ def parse_poses(flyerID, file):
         joint_ids[info[1].decode()] = joint_id
 
     poses_info = ET.parse(file).getroot()
-    poses = {}
-    key_sequences = {}
+    poses = []
+    action_sequences = []
     default_pose = { 'bodyIndex' : -1, 'jointIndices' : [], 'controlMode' : p.POSITION_CONTROL, 'targetPositions' : [], 'forces' : [] }
     for child in poses_info:
         print(child.tag)
@@ -151,7 +151,6 @@ def parse_poses(flyerID, file):
                 default_pose['jointIndices'].append(id)
                 default_pose['targetPositions'].append(value*deg)
                 default_pose['forces'].append(force)
-            # print("got default_pose",default_pose)
         elif child.tag == 'pose':
             pose_name=child.attrib['name']
             pose_key=child.attrib['key']
@@ -177,90 +176,108 @@ def parse_poses(flyerID, file):
                 except:
                     pass
 
-            # print("got pose",key, pose_name)
             # return an array of poses so it's possible to have multiple types of control, but only position implemented for now
-            poses[pose_key] = (pose_name, [pose])
-        elif child.tag == 'key_sequence':
-            key_seq_name=child.attrib['name']
-            key_seq_key=child.attrib['key']
-            key_seq = [0.0]
+            poses.append((pose_key, pose_name, [pose]))
+        elif child.tag == 'action_sequence':
+            action_seq_name=child.attrib['name']
+            action_seq_key=child.attrib['key']
+            action_seq = [0.0]
             cumul_wait = 0.0
             for elem in child:
                 print("in child",elem.tag)
                 if elem.tag == 'pose':
-                    key_seq.append(elem.attrib['key'])
+                    if 'key' in elem.attrib:
+                        action_seq.append(('key',elem.attrib['key']))
+                        if 'name' in elem.attrib:
+                            raise ValueError('key and attrib in same elem of action_sequence')
+                    if 'name' in elem.attrib:
+                        action_seq.append(('name',elem.attrib['name']))
+                        if 'key' in elem.attrib:
+                            raise ValueError('key and attrib in same elem of action_sequence')
                 elif elem.tag == 'wait':
                     cumul_wait += float(elem.attrib['time'])
-                    key_seq.append(cumul_wait)
+                    action_seq.append(cumul_wait)
                 else:
-                    raise ValueError("Unknown tag within key_sequence "+elem.tag)
-            key_sequences[key_seq_key] = (key_seq_name, key_seq)
+                    raise ValueError("Unknown tag within action_sequence "+elem.tag)
+            action_sequences.append((action_seq_key, action_seq_name, action_seq))
 
         else:
             raise ValueError("Unknown top level tag "+child.tag)
 
-    return (poses, key_sequences)
+    return (poses, action_sequences)
 
-def print_pose(pose):
-    print("pose {}".format(pose[0]))
-    for pose in pose[1]:
+def print_pose(key, name, pose_a):
+    print("key {} pose {}".format(key, name))
+    for pose in pose_a:
         print("body",p.getBodyInfo(pose['bodyIndex']))
         for (joint_id, value, force) in zip(pose['jointIndices'],pose['targetPositions'],pose['forces']):
             print("  joint",p.getJointInfo(pose['bodyIndex'],joint_id)[1],value,force)
 
-def print_key_seq(key_sequence):
-    print("key_sequence {}".format(key_sequence[0]))
-    for elem in key_sequence[1]:
+def print_action_seq(key, name, action_sequence):
+    print("key {} action_sequence {}".format(key, name))
+    for elem in action_sequence:
         if isinstance(elem,float):
             print("  wait",elem)
         else:
-            print("  key",elem)
+            print("  ",elem)
 
 class SimulationState:
 
-    def __init__(self, poses, key_sequences):
-        self.current_key_seq = None
-        self.key_seq_start_time=-1
-        self.key_seq_cur_index=-1
-        self.in_key_sequence = False
+    def __init__(self, poses, action_sequences):
+        self.current_action_seq = None
+        self.action_seq_start_time=-1
+        self.action_seq_cur_index=-1
+        self.in_action_sequence = False
         self.poses = poses
-        self.key_sequences = key_sequences
+        self.action_sequences = action_sequences
         self.actions_by_name = {}
         self.actions_by_key = {}
-        for pose_key in poses:
-            self.register_key(pose_key, poses[pose_key][0], self.start_pose, pose=poses[pose_key])
-        for key_seq_key in key_sequences:
-            self.register_key(key_seq_key, key_sequences[key_seq_key][0], self.start_key_seq, key_sequence=key_sequences[key_seq_key])
+        for (key, name, pose) in poses:
+            self.register_action(key, name, self.start_pose, pose_name=name, pose=pose)
+        for (key, name, action_seq) in action_sequences:
+            for i in range(0,len(action_seq),2):
+                if action_seq[i+1][0] == 'key':
+                    action_seq[i+1] = (self.do_key, action_seq[i+1][1])
+                elif action_seq[i+1][0] == 'name':
+                    action_seq[i+1] = (self.do_name, action_seq[i+1][1])
+                else:
+                    raise ValueError("unknown action type "+action_seq[i+1][0])
+            self.register_action(key, name, self.start_action_seq, action_name=name, action_sequence=action_seq)
 
-    def register_key(self, key, name, action, **kwargs):
+    def register_action(self, key, name, action, **kwargs):
         self.actions_by_key[key] = (action, kwargs)
         self.actions_by_name[name] = (action, kwargs)
 
-    def start_pose(self, pose):
-        for kwargs in pose[1]:
-            p.setJointMotorControlArray(**kwargs)
+    def start_pose(self, pose_name,pose):
+        print("  start pose",pose_name)
+        for motorcontrol_kwargs in pose:
+            p.setJointMotorControlArray(**motorcontrol_kwargs)
 
-    def start_key_seq(self,key_sequence):
-        self.key_seq_start_time = time.time()
-        print_key_seq(key_sequence)
-        self.current_key_seq = key_sequence[1]
-        self.key_seq_cur_index = 0
+    def start_action_seq(self,action_name,action_sequence):
+        print("  start action sequence",action_name)
+        self.action_seq_start_time = time.time()
+        self.current_action_seq = action_sequence
+        self.action_seq_cur_index = 0
+
+    def do_name(self,name):
+        print("do name ",name)
+        (action_func, action_kwargs) = self.actions_by_name[name]
+        action_func(**action_kwargs)
 
     def do_key(self,key):
-        print("key",key)
         try:
-            action = self.actions_by_key[key]
-            print("doing key",key,"action[0]",action[0],"action[1]",action[1])
-            action[0](**action[1])
+            (action_func, action_kwargs) = self.actions_by_key[key]
+            print("do key '{}'".format(key))
+            action_func(**action_kwargs)
         except KeyError:
             pass
 
-    def do_key_seq_stuff(self):
-        if self.current_key_seq is not None:
-            if (time.time() - self.key_seq_start_time) >= self.current_key_seq[self.key_seq_cur_index]:
-                print("start_pose with key ",self.current_key_seq[self.key_seq_cur_index+1])
-                self.do_key(self.current_key_seq[self.key_seq_cur_index+1])
-                # start_pose(self.poses[self.current_key_seq[self.key_seq_cur_index+1]])
-                self.key_seq_cur_index += 2
-                if self.key_seq_cur_index >= len(self.current_key_seq):
-                    self.current_key_seq = None
+    def do_action_seq_stuff(self):
+        if self.current_action_seq is not None:
+            if (time.time() - self.action_seq_start_time) >= self.current_action_seq[self.action_seq_cur_index]:
+                action = self.current_action_seq[self.action_seq_cur_index+1][0]
+                action_arg = self.current_action_seq[self.action_seq_cur_index+1][1]
+                action(action_arg)
+                self.action_seq_cur_index += 2
+                if self.action_seq_cur_index >= len(self.current_action_seq):
+                    self.current_action_seq = None
