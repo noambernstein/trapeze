@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 
 import sys
+import argparse
+
+parser = argparse.ArgumentParser(description="flying trapeze simulation")
+parser.add_argument('-t','--trick_name',type=str,action='store',default='takeoff_hocks_style_knee_hang', help='name of trick to do (triggered by key "t")')
+args = parser.parse_args()
+
 import time
 import numpy as np
 import pybullet as p
@@ -111,6 +117,8 @@ def gravity():
 
 sim_state.register_action(key=' ', name='hep', action=takeoff_release_hep)
 sim_state.register_action(key='w', name='gravity', action=gravity)
+
+sim_state.register_action_sequence(key='t', action_sequence_name=args.trick_name)
 
 p.setRealTimeSimulation(1)
 while True:

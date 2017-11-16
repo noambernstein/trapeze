@@ -168,6 +168,7 @@ def parse_poses(flyerID, file):
                     pose[key] = default_pose[key]
 
             for joint in child:
+                print("parsing joint in pose",joint.tag,joint.attrib)
                 if joint.tag != 'joint':
                     raise ValueError("Unknown tag inside pose "+joint.tag)
                 joint_name=joint.attrib['name']
@@ -185,8 +186,16 @@ def parse_poses(flyerID, file):
             # return an array of poses so it's possible to have multiple types of control, but only position implemented for now
             poses.append((pose_key, pose_name, [pose]))
         elif child.tag == 'action_sequence':
-            action_seq_name=child.attrib['name']
-            action_seq_key=child.attrib['key']
+
+            try:
+                action_seq_name=child.attrib['name']
+            except KeyError:
+                action_seq_name=''
+            try:
+                action_seq_key=child.attrib['key']
+            except KeyError:
+                action_seq_key=''
+
             action_seq = [0.0]
             cumul_wait = 0.0
             for elem in child:
@@ -249,6 +258,9 @@ class SimulationState:
                 else:
                     raise ValueError("unknown action type "+action_seq[i+1][0])
             self.register_action(key, name, self.start_action_seq, action_name=name, action_sequence=action_seq)
+
+    def register_action_sequence(self, key, action_sequence_name):
+        self.register_action(key, '', self.start_action_seq, **self.actions_by_name[action_sequence_name][1])
 
     def register_action(self, key, name, action, **kwargs):
         if len(key) > 0:

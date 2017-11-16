@@ -37,9 +37,9 @@
             <geom name='nose' type='sphere' pos='0.135 0 0.45' size='0.03' material='nose' />
             <body name='l_thigh' pos='0 0.1 -0.3'>
                 <geom name='l_thigh' type='capsule' fromto='0 0 -0.1    0 0 -0.4' size='0.1' />
-                <joint name='l_hip_x' type='hinge' pos='0 0 0' axis='1 0 0' range='-25 75'       armature='0.01' />
                 <joint name='l_hip_y' type='hinge' pos='0 0 0' axis='0 -1 0' range='-60 130'     armature='0.0080' />
-                <!-- <joint name='l_hip_z' type='hinge' pos='0 0 0' axis='0 0 1' range='-60 35'      armature='0.01' /> -->
+                <joint name='l_hip_x' type='hinge' pos='0 0 0' axis='1 0 0' range='-25 75'       armature='0.01' />
+                <!-- <joint name='l_hip_z' type='hinge' pos='0 0 0' axis='0 0 1' range='-60 130'     armature='0.0080' /> -->
                 <body name='l_lower_leg' pos='0 0.0 -0.5'>
                     <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.08 0 0 -0.42' size='0.08' />
                     <joint name='l_knee' type='hinge' pos='0 0 0' axis='0 1 0' range='0 160'       armature='0.01' />
@@ -47,9 +47,9 @@
             </body>
             <body name='r_thigh' pos='0 -0.1 -0.3'>
                 <geom name='r_thigh' type='capsule' fromto='0 0 -0.1 0 0 -0.4' size='0.1' />
-                <joint name='r_hip_x' type='hinge' pos='0 0 0' axis='-1 0 0' range='-25 75'       armature='0.01' />
                 <joint name='r_hip_y' type='hinge' pos='0 0 0' axis='0 -1 0' range='-60 130'     armature='0.0080' />
-                <!-- <joint name='r_hip_z' type='hinge' pos='0 0 0' axis='0 0 -1' range='-60 35'      armature='0.01' /> -->
+                <joint name='r_hip_x' type='hinge' pos='0 0 0' axis='-1 0 0' range='-25 75'       armature='0.01' />
+                <!-- <joint name='r_hip_z' type='hinge' pos='0 0 0' axis='0 0 -1' range='-60 130'     armature='0.0080' /> -->
                 <body name='r_lower_leg' pos='0 0.0 -0.5'>
                     <geom name='r_lower_leg' type='capsule' fromto='0 0 -0.08 0 0 -0.42' size='0.08' />
                     <joint name='r_knee' type='hinge' pos='0 0 0' axis='0 1 0' range='0 160'       armature='0.01' />
