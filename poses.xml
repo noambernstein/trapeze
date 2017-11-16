@@ -169,6 +169,35 @@
         <pose name='seven_hips' />
     </action_sequence>
 
+    <pose name='back' >
+        <joint name='l_hip_y' value='-20' />
+        <joint name='r_hip_y' value='-20' />
+        <joint name='l_shoulder1' value='100' />
+        <joint name='r_shoulder1' value='100' />
+    </pose>
+    <pose name='forward' >
+        <joint name='l_hip_y' value='20' />
+        <joint name='r_hip_y' value='20' />
+        <joint name='l_shoulder1' value='70' />
+        <joint name='r_shoulder1' value='70' />
+    </pose>
+
+    <action_sequence key='5' name='takeoff_half_time_straight_jump' >
+        <pose key=' ' />
+        <wait time='0.7' />
+
+        <pose name='back' />
+        <wait time='0.5' />
+        <pose name='forward' />
+        <wait time='0.5' />
+        <pose name='back' />
+        <wait time='0.55' />
+        <pose name='hep' />
+        <wait time='0.0' />
+        <pose name='flat' />
+
+    </action_sequence>
+
     <pose key='v' name='hip_forward' >
         <joint name='l_hip_y' value='40' />
         <joint name='r_hip_y' value='40' />

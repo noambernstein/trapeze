@@ -152,8 +152,14 @@ def parse_poses(flyerID, file):
                 default_pose['targetPositions'].append(value*deg)
                 default_pose['forces'].append(force)
         elif child.tag == 'pose':
-            pose_name=child.attrib['name']
-            pose_key=child.attrib['key']
+            try:
+                pose_name=child.attrib['name']
+            except KeyError:
+                pose_name=''
+            try:
+                pose_key=child.attrib['key']
+            except KeyError:
+                pose_key=''
             pose = {}
             for key in default_pose:
                 try:
@@ -245,8 +251,10 @@ class SimulationState:
             self.register_action(key, name, self.start_action_seq, action_name=name, action_sequence=action_seq)
 
     def register_action(self, key, name, action, **kwargs):
-        self.actions_by_key[key] = (action, kwargs)
-        self.actions_by_name[name] = (action, kwargs)
+        if len(key) > 0:
+            self.actions_by_key[key] = (action, kwargs)
+        if len(name) > 0:
+            self.actions_by_name[name] = (action, kwargs)
 
     def start_pose(self, pose_name,pose):
         print("  start pose",pose_name)
