@@ -168,7 +168,7 @@ def parse_poses(flyerID, file):
     action_sequences = []
     default_pose = { 'bodyIndex' : -1, 'jointIndices' : [], 'controlMode' : p.POSITION_CONTROL, 'targetPositions' : [], 'forces' : [] }
     for child in poses_info:
-        print(child.tag)
+        # print(child.tag)
         if child.tag == 'defaults':
             for joint in child:
                 if joint.tag != 'joint':
@@ -198,7 +198,7 @@ def parse_poses(flyerID, file):
                     pose[key] = default_pose[key]
 
             for joint in child:
-                print("parsing joint in pose",joint.tag,joint.attrib)
+                # print("parsing joint in pose",joint.tag,joint.attrib)
                 if joint.tag != 'joint':
                     raise ValueError("Unknown tag inside pose "+joint.tag)
                 joint_name=joint.attrib['name']
@@ -229,7 +229,7 @@ def parse_poses(flyerID, file):
             action_seq = [0.0]
             cumul_wait = 0.0
             for elem in child:
-                print("in child",elem.tag)
+                # print("in child",elem.tag)
                 if elem.tag == 'pose':
                     if 'key' in elem.attrib:
                         action_seq.append(('key',elem.attrib['key']))
