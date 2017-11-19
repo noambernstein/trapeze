@@ -186,14 +186,14 @@
 
     <action_sequence name='takeoff_half_time_straight_jump' >
         <pose name='hep' />
-        <wait time='0.7' />
+        <wait time='0.85' />
 
         <pose name='back' />
         <wait time='0.5' />
         <pose name='forward' />
         <wait time='0.5' />
         <pose name='back' />
-            <wait time='0.45' />
+        <wait time='0.5' />
         <pose name='hep' />
         <wait time='0.0' />
         <pose name='flat' />
