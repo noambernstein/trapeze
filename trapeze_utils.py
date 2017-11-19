@@ -7,6 +7,7 @@ dt=0.01
 deg=np.pi/180.0
 
 def find_link(name):
+    print("finding link",name)
     for i in range(p.getNumBodies()):
         id = p.getBodyUniqueId(i)
         if p.getBodyInfo(id)[0].decode() == name:
@@ -28,23 +29,38 @@ def fix_in_space(obj, type):
             jointType=p.JOINT_POINT2POINT, jointAxis=[0,0,1],
             parentFramePosition=[0,0,0], childFramePosition=pos)
     elif type == 'fixed':
-        c = [p.createConstraint(parentBodyUniqueId=obj[0], parentLinkIndex=obj[1],
-                childBodyUniqueId=-1, childLinkIndex=-1,
-                jointType=p.JOINT_POINT2POINT, jointAxis=[0,0,1],
-                parentFramePosition=[0,0,0], childFramePosition=pos),
-             p.createConstraint(parentBodyUniqueId=obj[0], parentLinkIndex=obj[1],
-                childBodyUniqueId=-1, childLinkIndex=-1,
-                jointType=p.JOINT_POINT2POINT, jointAxis=[0,0,1],
-                parentFramePosition=[0.1,0,0], childFramePosition=np.array(pos)-[0.1,0,0]),
-             p.createConstraint(parentBodyUniqueId=obj[0], parentLinkIndex=obj[1],
-                childBodyUniqueId=-1, childLinkIndex=-1,
-                jointType=p.JOINT_POINT2POINT, jointAxis=[0,0,1],
-                parentFramePosition=[0,0.1,0], childFramePosition=np.array(pos)-[0,0.1,0])
-            ]
+        c = p.createConstraint(parentBodyUniqueId=obj[0], parentLinkIndex=obj[1],
+            childBodyUniqueId=-1, childLinkIndex=-1,
+            jointType=p.JOINT_FIXED, jointAxis=[0,0,1],
+            parentFramePosition=[0,0,0], childFramePosition=pos)
     else:
         raise ValueError("Unknown fix in space type "+type)
 
     return c
+
+def attach_two_world_points(obj_A_id, obj_A_link_id, obj_B_id, obj_B_link_id, obj_A_pos_world, obj_B_pos_world):
+    if obj_A_link_id == -1:
+        obj_A_CoM_pos_orient = p.getBasePositionAndOrientation(obj_A_id)
+    else:
+        s = p.getLinkState(obj_A_id, obj_A_link_id)
+        obj_A_CoM_pos_orient = s[0:2]
+    if obj_B_link_id == -1:
+        obj_B_CoM_pos_orient = p.getBasePositionAndOrientation(obj_B_id)
+    else:
+        s = p.getLinkState(obj_B_id, obj_B_link_id)
+        obj_B_CoM_pos_orient = s[0:2]
+
+    parent_pos =  p.multiplyTransforms([0,0,0], obj_A_CoM_pos_orient[1], obj_A_pos_world-np.array(obj_A_CoM_pos_orient[0]), [0,0,0,1])[0]
+    child_pos =  p.multiplyTransforms([0,0,0], obj_B_CoM_pos_orient[1], obj_B_pos_world-np.array(obj_B_CoM_pos_orient[0]), [0,0,0,1])[0]
+
+    return (
+        p.createConstraint(
+            parentBodyUniqueId=obj_A_id, parentLinkIndex=obj_A_link_id,
+            childBodyUniqueId=obj_B_id, childLinkIndex=obj_B_link_id,
+            jointType=p.JOINT_POINT2POINT, jointAxis=[0,0,1],
+            parentFramePosition=np.array(parent_pos),childFramePosition=np.array(child_pos))
+        )
+
 
 def attach_closest_point2point(obj_A_id, obj_B_id, distance=0.1):
     closest_points = p.getClosestPoints(bodyA=obj_A_id, bodyB=obj_B_id, distance=distance)
@@ -55,28 +71,42 @@ def attach_closest_point2point(obj_A_id, obj_B_id, distance=0.1):
         obj_A_pos_world = np.array(closest_pair[5])
         obj_B_pos_world = np.array(closest_pair[6])
 
-        if obj_A_link_id == -1:
-            obj_A_CoM_pos_orient = p.getBasePositionAndOrientation(obj_A_id)
-        else:
-            s = p.getLinkState(obj_A_id, obj_A_link_id)
-            obj_A_CoM_pos_orient = s[0:2]
-        if obj_B_link_id == -1:
-            obj_B_CoM_pos_orient = p.getBasePositionAndOrientation(obj_B_id)
-        else:
-            s = p.getLinkState(obj_B_id, obj_B_link_id)
-            obj_B_CoM_pos_orient = s[0:2]
+        attachment_constraints.append(attach_two_world_points(obj_A_id, obj_A_link_id, obj_B_id, obj_B_link_id,
+            obj_A_pos_world, obj_B_pos_world))
 
-        parent_pos =  p.multiplyTransforms([0,0,0], obj_A_CoM_pos_orient[1], obj_A_pos_world-np.array(obj_A_CoM_pos_orient[0]), [0,0,0,1])[0]
-        child_pos =  p.multiplyTransforms([0,0,0], obj_B_CoM_pos_orient[1], obj_B_pos_world-np.array(obj_B_CoM_pos_orient[0]), [0,0,0,1])[0]
-
-        attachment_constraints.append(
-            p.createConstraint(
-                parentBodyUniqueId=obj_A_id, parentLinkIndex=obj_A_link_id,
-                childBodyUniqueId=obj_B_id, childLinkIndex=obj_B_link_id,
-                jointType=p.JOINT_POINT2POINT, jointAxis=[0,0,1],
-                parentFramePosition=np.array(parent_pos),childFramePosition=np.array(child_pos))
-            )
     return attachment_constraints
+
+def grab_bar_with_hands(bar_id, l_hand_id, r_hand_id, grip_distance=0.5):
+    l_closest_points = p.getClosestPoints(bodyA=bar_id[0], linkIndexA=bar_id[1], bodyB=l_hand_id[0], linkIndexB=l_hand_id[1], distance=0.5)
+    r_closest_points = p.getClosestPoints(bodyA=bar_id[0], linkIndexA=bar_id[1], bodyB=r_hand_id[0], linkIndexB=r_hand_id[1], distance=0.5)
+    if len(l_closest_points) != 1:
+        raise ValueError("Confused by len(l_closest_points) = {}".format(len(l_closest_points)))
+    if len(r_closest_points) > 1:
+        raise ValueError("Confused by len(r_closest_points) = {}".format(len(r_closest_points)))
+    l_closest_points = l_closest_points[0]
+    r_closest_points = r_closest_points[0]
+    print("l_closest_points",l_closest_points[5],l_closest_points[6])
+    print("r_closest_points",r_closest_points[5],r_closest_points[6])
+    bar_center = (np.array(l_closest_points[5]) + np.array(r_closest_points[5]))/2.0
+    l_bar_vec = np.array(l_closest_points[5]) - bar_center
+    r_bar_vec = np.array(r_closest_points[5]) - bar_center
+    l_bar_vec /= np.linalg.norm(l_bar_vec)
+    r_bar_vec /= np.linalg.norm(r_bar_vec)
+    print("bar vec",l_bar_vec,r_bar_vec)
+    ###
+    l_bar_grip_point = bar_center + l_bar_vec*grip_distance/2.0 + np.array((0.01,0,0))
+    r_bar_grip_point = bar_center + r_bar_vec*grip_distance/2.0 + np.array((0.01,0,0))
+    print("grip point",l_bar_grip_point, l_closest_points[5])
+    ### l_bar_grip_point = l_closest_points[5]
+    ### r_bar_grip_point = r_closest_points[5]
+    ###
+    l_hand_grip_point = np.array(l_closest_points[6]) ### + np.array((-0.01,0,0))
+    r_hand_grip_point = np.array(r_closest_points[6]) ### + np.array((-0.01,0,0))
+    # print("bar_grip_points",l_bar_grip_point,r_bar_grip_point)
+    # print("hand_grip_points",l_hand_grip_point,r_hand_grip_point)
+    return((attach_two_world_points(bar_id[0], bar_id[1], l_hand_id[0], l_hand_id[1], l_bar_grip_point, l_hand_grip_point),
+            attach_two_world_points(bar_id[0], bar_id[1], r_hand_id[0], r_hand_id[1], r_bar_grip_point, r_hand_grip_point)))
+
 
 
 def exercise(flyerID, name_list):

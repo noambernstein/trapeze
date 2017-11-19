@@ -1,0 +1,63 @@
+#!/usr/bin/env perl
+
+if ($#ARGV != 0) {
+    die("Usage: $0 height\n");
+}
+my $height = $ARGV[0];
+
+open $fh, "< flyer.xml.template";
+
+my $ref_l=2.175;
+
+my $torso_half_height = 0.3*$height/$ref_l;
+my $torso_half_width = 0.2*$height/$ref_l;
+my $torso_half_depth = 0.1*$height/$ref_l;
+my $head_rad = 0.125*$height/$ref_l;
+my $neck_len = 0.025*$height/$ref_l;
+my $nose_rad = 0.03*$height/$ref_l;
+
+my $thigh_len = 0.5*$height/$ref_l;
+my $thigh_rad = 0.1*$height/$ref_l;
+my $calf_len = 0.5*$height/$ref_l;
+my $calf_rad = 0.08*$height/$ref_l;
+
+my $upper_arm_len=0.375*$height/$ref_l;
+my $upper_arm_rad=0.05*$height/$ref_l;
+my $lower_arm_len=0.275*$height/$ref_l;
+my $lower_arm_rad=0.05*$height/$ref_l;
+my $hand_rad=0.05*$height/$ref_l;
+
+warn(sprintf("final height %f\n",($calf_len+$thigh_len+2*$torso_half_height+$neck_len+2*$head_rad)));
+warn(sprintf("final arm span %f\n",(2*($torso_half_width+$upper_arm_len+$lower_arm_len+2*$hand_rad))));
+
+while (my $l = <$fh>) {
+    @f = split(/(\s+)/, $l);
+    foreach my $f (@f) {
+        if ($f =~ /\bT_/) {
+            $f =~ /([^A-Z0-9_+*().-]*)([A-Z0-9_+*().-]+)(.*)/;
+            my $pre = $1;
+            my $mid = $2;
+            my $post = $3;
+            my $sub_2 = $mid;
+            $sub_2 =~ s/T_TORSO_HALF_HEIGHT/$torso_half_height/;
+            $sub_2 =~ s/T_TORSO_HALF_WIDTH/$torso_half_width/;
+            $sub_2 =~ s/T_TORSO_HALF_DEPTH/$torso_half_depth/;
+            $sub_2 =~ s/T_HEAD_RAD/$head_rad/;
+            $sub_2 =~ s/T_NECK_LEN/$neck_len/;
+            $sub_2 =~ s/T_NOSE_RAD/$nose_rad/;
+            $sub_2 =~ s/T_THIGH_LEN/$thigh_len/;
+            $sub_2 =~ s/T_THIGH_RAD/$thigh_rad/;
+            $sub_2 =~ s/T_CALF_LEN/$calf_len/;
+            $sub_2 =~ s/T_CALF_RAD/$calf_rad/;
+            $sub_2 =~ s/T_UPPER_ARM_LEN/$upper_arm_len/;
+            $sub_2 =~ s/T_UPPER_ARM_RAD/$upper_arm_rad/;
+            $sub_2 =~ s/T_LOWER_ARM_LEN/$lower_arm_len/;
+            $sub_2 =~ s/T_LOWER_ARM_RAD/$lower_arm_rad/;
+            $sub_2 =~ s/T_HAND_RAD/$hand_rad/;
+            print $pre,eval($sub_2),$post;
+            # print $pre,"#",$mid,"=",$sub_2,"=",eval($sub_2),"#",$post;
+        } else {
+            print $f;
+        }
+    }
+}
