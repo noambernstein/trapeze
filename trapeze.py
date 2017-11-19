@@ -35,9 +35,9 @@ print(flyerID,rigIDs)
 
 # attach fly trap to crane
 fly_crane_id=find_link('fly_crane')
-fly_trap_id=find_link('fly_trap')
+fly_bar_id=find_link('fly_bar')
 print("ATTACHING FLY TRAP TO CRANE")
-fly_trap_attachment_constraints = attach_closest_point2point(fly_crane_id[0], fly_trap_id[0], distance=0.2)
+fly_bar_attachment_constraints = attach_closest_point2point(fly_crane_id[0], fly_bar_id[0], distance=0.2)
 
 # find board edge
 (boardID, boardLinkID) = find_link('board')
@@ -58,7 +58,7 @@ p.resetBasePositionAndOrientation(flyerID,flyer_pos + board_edge + offset,
 
 # apply belt hold and hold bar in place
 belt_hold_constraint = fix_in_space(find_link('torso'), 'point2point')
-bar_serve_hold = fix_in_space(find_link('fly_trap'), 'point2point')
+bar_serve_hold = fix_in_space(find_link('fly_bar'), 'point2point')
 
 # get ready for simulation
 p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=0, cameraPitch=5, cameraTargetPosition=[0,0,board_edge[2]])
@@ -95,7 +95,7 @@ while time.time()-t0 < 0.4:
 
 # grab on
 print("ATTACHING HANDS TO FLY BAR")
-flyer_hands_attachment_constraints = attach_closest_point2point(fly_trap_id[0], flyerID, distance=0.3)
+flyer_hands_attachment_constraints = attach_closest_point2point(fly_bar_id[0], flyerID, distance=0.3)
 
 def takeoff_release_hep():
     global belt_hold_constraint, flyer_hands_attachment_constraints

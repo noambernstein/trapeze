@@ -49,7 +49,7 @@
         <!-- fly cable length 12' = 3.64 m -->
         <!-- height = 8.7 m set by reasonable offset from board height -->
         <!-- 3.64^2 = (9.7-8.7)^2 + x^2 -->
-        <body name='fly_trap' pos='3.48 0 8.6' >
+        <body name='fly_bar' pos='3.48 0 8.6' >
             <geom name='fly_bar' type='cylinder' fromto='0 -0.75 0 0 0.75 0' size='0.01' />
 
             <body name='l_fly_cable' pos='0 -0.75 0'>
