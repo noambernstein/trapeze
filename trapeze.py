@@ -4,7 +4,7 @@ import sys
 import argparse
 
 parser = argparse.ArgumentParser(description="flying trapeze simulation")
-parser.add_argument('-t','--trick_name',type=str,action='store',default='takeoff_hocks_style_knee_hang', help='name of trick triggered by key "t"')
+parser.add_argument('-t','--trick_name',type=str,action='store',default=None, help='name of trick triggered by key "t"')
 parser.add_argument('-g','--grip_width',type=float,action='store',default=0.5, help='width of grip in m')
 parser.add_argument('-m','--movie',type=str,action='store',default=None, help='make a movie from sequence initiated by key')
 parser.add_argument('-l','--movie_length',type=int,action='store',default='5', help='length of movie in seconds')
@@ -13,7 +13,10 @@ args = parser.parse_args()
 import time
 import numpy as np
 import pybullet as p
-import png
+try:
+    import png
+except:
+    pass
 
 from trapeze_utils import *
 
@@ -26,7 +29,7 @@ p.setPhysicsEngineParameter(numSolverIterations=1000)
 p.setGravity(0,0,-9.8)
 
 # load flyer and rig
-flyerID = p.loadMJCF("flyer.xml")[0]
+flyerID = p.loadMJCF("flyer.xml", flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)[0]
 rigIDs = p.loadMJCF("rig.xml")
 
 for j in range(p.getNumJoints(flyerID)):
@@ -87,7 +90,7 @@ dt=0.01
 print ("READY")
 p.setTimeStep(dt)
 sim_state.do_key('r')
-for i in range(int(0.5/dt)):
+for i in range(int(0.2/dt)):
     p.stepSimulation()
 
 print("GRAB BAR")
@@ -127,7 +130,8 @@ def gravity():
 sim_state.register_action(key=' ', name='hep', action=takeoff_release_hep)
 sim_state.register_action(key='w', name='gravity', action=gravity)
 
-sim_state.register_action_sequence(key='t', action_sequence_name=args.trick_name)
+if args.trick_name is not None:
+    sim_state.register_action_sequence(key='t', action_sequence_name=args.trick_name)
 ###################################################################################################
 
 print("MAIN LOOP")

@@ -36,22 +36,26 @@
             <geom name='head' type='sphere' pos='0 0 T_TORSO_HALF_HEIGHT+T_HEAD_RAD+T_NECK_LEN' size='T_HEAD_RAD' />
             <geom name='nose' type='sphere' pos='T_HEAD_RAD+0.5*T_NOSE_RAD 0 T_TORSO_HALF_HEIGHT+T_HEAD_RAD+T_NECK_LEN' size='T_NOSE_RAD' material='nose' />
             <body name='l_thigh' pos='0 0.5*T_TORSO_HALF_WIDTH -T_TORSO_HALF_HEIGHT'>
-                <geom name='l_thigh' type='capsule' fromto='0 0 -T_THIGH_RAD    0 0 -(T_THIGH_LEN-T_THIGH_RAD)' size='T_THIGH_RAD' />
+                <geom name='l_thigh_1' type='capsule' fromto='0 0 -T_THIGH_RAD    0 0 -(0.8*T_THIGH_LEN-T_THIGH_RAD)' size='T_THIGH_RAD' />
+                <geom name='l_thigh_2' type='capsule' fromto='0 0 -0.8*T_THIGH_LEN    0 0 -(T_THIGH_LEN-0.*T_THIGH_RAD)' size='0.5*T_THIGH_RAD' />
                 <joint name='l_hip_y' type='hinge' pos='0 0 0' axis='0 -1 0' range='-60 130'     armature='0.0080' />
                 <joint name='l_hip_x' type='hinge' pos='0 0 0' axis='1 0 0' range='-25 75'       armature='0.01' />
                 <!-- <joint name='l_hip_z' type='hinge' pos='0 0 0' axis='0 0 1' range='-60 130'     armature='0.0080' /> -->
                 <body name='l_lower_leg' pos='0 0.0 -T_THIGH_LEN'>
-                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -T_CALF_RAD 0 0 -(T_CALF_LEN-T_CALF_RAD)' size='T_CALF_RAD' />
+                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -(0.2*T_CALF_LEN+T_CALF_RAD) 0 0 -(T_CALF_LEN-T_CALF_RAD)' size='T_CALF_RAD' />
+                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.5*T_CALF_RAD 0 0 -(0.2*T_CALF_LEN+T_CALF_RAD)' size='0.5*T_CALF_RAD' />
                     <joint name='l_knee' type='hinge' pos='0 0 0' axis='0 1 0' range='0 160'       armature='0.01' />
                 </body>
             </body>
             <body name='r_thigh' pos='0 -0.5*T_TORSO_HALF_WIDTH -T_TORSO_HALF_HEIGHT'>
-                <geom name='r_thigh' type='capsule' fromto='0 0 -T_THIGH_RAD 0 0 -(T_THIGH_LEN-T_THIGH_RAD)' size='T_THIGH_RAD' />
+                <geom name='r_thigh_1' type='capsule' fromto='0 0 -T_THIGH_RAD    0 0 -(0.8*T_THIGH_LEN-T_THIGH_RAD)' size='T_THIGH_RAD' />
+                <geom name='r_thigh_2' type='capsule' fromto='0 0 -0.8*T_THIGH_LEN    0 0 -(T_THIGH_LEN-0.*T_THIGH_RAD)' size='0.5*T_THIGH_RAD' />
                 <joint name='r_hip_y' type='hinge' pos='0 0 0' axis='0 -1 0' range='-60 130'     armature='0.0080' />
                 <joint name='r_hip_x' type='hinge' pos='0 0 0' axis='-1 0 0' range='-25 75'       armature='0.01' />
                 <!-- <joint name='r_hip_z' type='hinge' pos='0 0 0' axis='0 0 -1' range='-60 130'     armature='0.0080' /> -->
                 <body name='r_lower_leg' pos='0 0.0 -T_THIGH_LEN'>
-                    <geom name='r_lower_leg' type='capsule' fromto='0 0 -T_CALF_RAD 0 0 -(T_CALF_LEN-T_CALF_RAD)' size='T_CALF_RAD' />
+                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -(0.2*T_CALF_LEN+T_CALF_RAD) 0 0 -(T_CALF_LEN-T_CALF_RAD)' size='T_CALF_RAD' />
+                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.5*T_CALF_RAD 0 0 -(0.2*T_CALF_LEN+T_CALF_RAD)' size='0.5*T_CALF_RAD' />
                     <joint name='r_knee' type='hinge' pos='0 0 0' axis='0 1 0' range='0 160'       armature='0.01' />
                 </body>
             </body>
