@@ -40,7 +40,7 @@
 
         <!-- 23' high, approx. 13' = 3.94 m right of fly crane -->
         <!-- seems too close to fly bar, move a bit further -->
-        <body name='board' pos='4.50 0 6.97' size='1.0 2.0 0.05' type='plane' material='MatPlane' condim='3'  >
+        <body name='board' pos='4.40 0 6.97' size='1.0 2.0 0.05' type='plane' material='MatPlane' condim='3'  >
             <geom name='board' type='box' pos='1.0 0 -0.05' size='1.0 2.0 0.05'  />
             <geom name='ridge' type='box' pos='0.3 0 0.04' size='0.1 2.0 0.08'  />
 	    <inertial mass='0.0' />

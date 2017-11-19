@@ -7,7 +7,7 @@ my $height = $ARGV[0];
 
 open $fh, "< flyer.xml.template";
 
-my $ref_l=2.175;
+my $ref_l=1.875;
 
 my $torso_half_height = 0.3*$height/$ref_l;
 my $torso_half_width = 0.2*$height/$ref_l;
