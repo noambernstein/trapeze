@@ -23,20 +23,24 @@ from trapeze_utils import *
 do_exercise = len(sys.argv) > 1 and sys.argv[1] == "--exercise"
 
 physicsClient = p.connect(p.GUI) #or p.DIRECT for non-graphical version
-p.setPhysicsEngineParameter(numSolverIterations=1000)
+p.setPhysicsEngineParameter(numSolverIterations=2000)
 
 # p.setGravity(0,0,0)
 p.setGravity(0,0,-9.8)
 
 # load flyer and rig
-flyerID = p.loadMJCF("flyer.xml", flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)[0]
+flyerID = p.loadMJCF("flyer.xml", flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)[0]
+####################################################################################################
+for j in range(p.getNumJoints(flyerID)):
+    print ("flyer link",j,p.getJointInfo(flyerID,j)[-1].decode())
+####################################################################################################
 rigIDs = p.loadMJCF("rig.xml")
 
 for j in range(p.getNumJoints(flyerID)):
-    p.changeDynamics(flyerID,j,linearDamping=0.01, angularDamping=0.0)
+    p.changeDynamics(flyerID,j,linearDamping=0.02, angularDamping=0.02)
 for i in rigIDs:
     for j in range(p.getNumJoints(i)):
-        p.changeDynamics(i,j,linearDamping=0.01, angularDamping=0.0)
+        p.changeDynamics(i,j,linearDamping=0.02, angularDamping=0.02)
 
 print(flyerID,rigIDs)
 
