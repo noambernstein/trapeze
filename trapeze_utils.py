@@ -235,10 +235,12 @@ def parse_poses(flyerID, file):
                         action_seq.append(('key',elem.attrib['key']))
                         if 'name' in elem.attrib:
                             raise ValueError('key and attrib in same elem of action_sequence')
-                    if 'name' in elem.attrib:
+                    elif 'name' in elem.attrib:
                         action_seq.append(('name',elem.attrib['name']))
                         if 'key' in elem.attrib:
                             raise ValueError('key and attrib in same elem of action_sequence')
+                    else:
+                        raise ValueError('Neither key nor name specified in pose in action_sequence {}'.format(action_seq_name))
                 elif elem.tag == 'wait':
                     cumul_wait += float(elem.attrib['time'])
                     action_seq.append(cumul_wait)
@@ -280,6 +282,7 @@ class SimulationState:
         for (key, name, pose) in poses:
             self.register_action(key, name, self.start_pose, pose_name=name, pose=pose)
         for (key, name, action_seq) in action_sequences:
+            print("action_seq",action_seq)
             for i in range(0,len(action_seq),2):
                 if action_seq[i+1][0] == 'key':
                     action_seq[i+1] = (self.do_key, action_seq[i+1][1])

@@ -50,11 +50,11 @@
         <joint name='r_hip_y' value='-60' />
     </pose>
 
-    <pose key='7' name='seven' >
+    <pose name='seven' >
         <joint name='l_shoulder1' value='-20'/>
         <joint name='r_shoulder1' value='-20'/>
     </pose>
-    <pose key='8' name='seven_hollow' >
+    <pose name='seven_hollow' >
         <joint name='l_shoulder1' value='-20'/>
         <joint name='r_shoulder1' value='-20'/>
         <joint name='l_hip_y' value='10'/>
@@ -72,7 +72,7 @@
         <joint name='r_knee' value='30' />
     </pose>
 
-    <pose key='c' name='curl_up' >
+    <pose name='curl_up' >
         <joint name='l_hip_y' value='130' />
         <joint name='r_hip_y' value='130' />
         <joint name='l_knee' value='130' />
@@ -101,30 +101,12 @@
         <joint name='r_elbow' value='60' />
     </pose>
 
-    <pose key='o' name='force_out' >
+    <pose name='force_out' >
         <joint name='l_shoulder1' value='0' />
         <joint name='r_shoulder1' value='0' />
         <joint name='l_hip_y' value='70' />
         <joint name='r_hip_y' value='70' />
     </pose>
-
-    <action_sequence key='1' name='swing_front_end' >
-        <pose name='sweep' />
-        <wait time='0.6' />
-        <pose name='curl_up' />
-        <wait time='0.4' />
-        <pose name='force_out' />
-        <wait time='0.1' />
-        <pose name='flat' />
-    </action_sequence>
-
-    <action_sequence key='2' name='swing_back_end' >
-        <pose name='hollow' />
-        <wait time='0.2' />
-        <pose name='sweep' />
-        <wait time='0.4' />
-        <pose name='seven_hollow' />
-    </action_sequence>
 
     <action_sequence key='3' name='full_swing' >
         <pose name='sweep' />
@@ -139,16 +121,16 @@
         <wait time='0.1' />
         <pose name='flat' />
 
-        <wait time='1.2' />
+        <wait time='1.0' />
         <pose name='hollow' />
         <wait time='0.3' />
         <pose name='sweep' />
-        <wait time='0.3' />
+        <wait time='0.4' />
         <pose name='seven_hollow' />
     </action_sequence>
 
     <action_sequence key='4' name='takeoff_full_swing' >
-        <pose key=' ' />
+        <pose name='hep' />
         <wait time='0.9' />
 
         <pose name='sweep' />
@@ -163,11 +145,11 @@
         <wait time='0.1' />
         <pose name='flat' />
 
-        <wait time='1.2' />
+        <wait time='1.0' />
         <pose name='hollow' />
         <wait time='0.3' />
         <pose name='sweep' />
-        <wait time='0.3' />
+        <wait time='0.5' />
         <pose name='seven_hollow' />
     </action_sequence>
 
@@ -270,38 +252,38 @@
         <pose name='hocks_style_knee_hang_final' />
     </action_sequence>
 
-    <pose key='v' name='hip_forward' >
+    <pose name='hip_forward' >
         <joint name='l_hip_y' value='40' />
         <joint name='r_hip_y' value='40' />
         <joint name='l_shoulder1' value='45' />
         <joint name='r_shoulder1' value='45' />
     </pose>
-    <pose key='b' name='hip_right' >
+    <pose name='hip_right' >
         <joint name='l_hip_x' value='-40' />
         <joint name='r_hip_x' value='40' />
         <joint name='l_shoulder2' value='-45' />
         <joint name='r_shoulder2' value='45' />
     </pose>
-    <pose key='n' name='hip_back' >
+    <pose name='hip_back' >
         <joint name='l_hip_y' value='-40' />
         <joint name='r_hip_y' value='-40' />
         <joint name='l_shoulder1' value='135' />
         <joint name='r_shoulder1' value='135' />
     </pose>
-    <pose key='x' name='hip_left' >
+    <pose name='hip_left' >
         <joint name='l_hip_x' value='40' />
         <joint name='r_hip_x' value='-40' />
         <joint name='l_shoulder2' value='45' />
         <joint name='r_shoulder2' value='-45' />
     </pose>
     <action_sequence key='m' name='miss' >
-        <pose key='v' />
-        <wait time='1.2' />
-        <pose key='b' />
-        <wait time='1.2' />
-        <pose key='n' />
-        <wait time='1.2' />
-        <pose key='x' />
+        <pose name='hips_forward' />
+        <wait time='0.2' />
+        <pose name='hips_rights' />
+        <wait time='0.2' />
+        <pose name='hips_back' />
+        <wait time='0.2' />
+        <pose name='hips_left' />
     </action_sequence>
 
 </poses>

@@ -23,7 +23,7 @@ from trapeze_utils import *
 do_exercise = len(sys.argv) > 1 and sys.argv[1] == "--exercise"
 
 physicsClient = p.connect(p.GUI) #or p.DIRECT for non-graphical version
-p.setPhysicsEngineParameter(numSolverIterations=2000)
+p.setPhysicsEngineParameter(numSolverIterations=1000)
 
 # p.setGravity(0,0,0)
 p.setGravity(0,0,-9.8)
@@ -31,8 +31,11 @@ p.setGravity(0,0,-9.8)
 # load flyer and rig
 flyerID = p.loadMJCF("flyer.xml", flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)[0]
 ####################################################################################################
+tot_mass = 0.0
 for j in range(p.getNumJoints(flyerID)):
-    print ("flyer link",j,p.getJointInfo(flyerID,j)[-1].decode())
+    tot_mass += p.getDynamicsInfo(flyerID,j)[0]
+    print ("flyer link # name mass",j,p.getJointInfo(flyerID,j)[-1].decode(),p.getDynamicsInfo(flyerID,j)[0])
+print("flyer total mass",tot_mass)
 ####################################################################################################
 rigIDs = p.loadMJCF("rig.xml")
 
@@ -93,7 +96,7 @@ sim_state = SimulationState(poses, action_sequences)
 dt=0.01
 print ("READY")
 p.setTimeStep(dt)
-sim_state.do_key('r')
+sim_state.do_name('ready')
 for i in range(int(0.2/dt)):
     p.stepSimulation()
 
@@ -121,7 +124,7 @@ def takeoff_release_hep():
         p.removeConstraint(belt_hold_constraint)
         belt_hold_constraint = None
         p.resetBaseVelocity(flyerID,linearVelocity=[0,0,3],angularVelocity=[0,1.5,0])
-        sim_state.do_key('7')
+        sim_state.do_name('seven')
     else: # release
         for constraint in flyer_hands_attachment_constraints:
             p.removeConstraint(constraint)

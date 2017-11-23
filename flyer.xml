@@ -66,8 +66,8 @@
                 <body name='l_lower_arm' pos='0.36 0.0 0.0'>
                     <geom name='l_lower_arm' type='capsule' fromto='0.048 0 0 0.216 0 0' size='0.048' />
                     <joint name='l_elbow' type='hinge' pos='0 0 0' axis='0 -1 0'  range='0 160'     armature='0.0068' />
-                    <body name='l_hand' pos='0.264' >
-                        <geom name='l_hand' type='sphere' pos='0.312 0 0' size='0.048' />
+                    <body name='l_hand' pos='0.264 0 0' >
+                        <geom name='l_hand' type='sphere' pos='0.048 0 0' size='0.048' />
                     </body>
                 </body>
             </body>
@@ -78,8 +78,8 @@
                 <body name='r_lower_arm' pos='0.36 0.0 0.0'>
                     <geom name='r_lower_arm' type='capsule' fromto='0.048 0 0 0.216 0 0' size='0.048' />
                     <joint name='r_elbow' type='hinge' pos='0 0 0' axis='0 -1 0'  range='0 160'     armature='0.0068' />
-                    <body name='r_hand' pos='0.264' >
-                        <geom name='r_hand' type='sphere' pos='0.312 0 0' size='0.048' />
+                    <body name='r_hand' pos='0.264 0 0' >
+                        <geom name='r_hand' type='sphere' pos='0.048 0 0' size='0.048' />
                     </body>
                 </body>
             </body>
