@@ -11,20 +11,20 @@ my $ref_l=1.875;
 
 my $torso_half_height = 0.3*$height/$ref_l;
 my $torso_half_width = 0.2*$height/$ref_l;
-my $torso_half_depth = 0.1*$height/$ref_l;
+my $torso_half_depth = 0.8*0.1*$height/$ref_l;
 my $head_rad = 0.125*$height/$ref_l;
 my $neck_len = 0.025*$height/$ref_l;
 my $nose_rad = 0.03*$height/$ref_l;
 
 my $thigh_len = 0.5*$height/$ref_l;
-my $thigh_rad = 0.1*$height/$ref_l;
+my $thigh_rad = 0.88*0.1*$height/$ref_l;
 my $calf_len = 0.5*$height/$ref_l;
-my $calf_rad = 0.08*$height/$ref_l;
+my $calf_rad = 0.82*0.08*$height/$ref_l;
 
 my $upper_arm_len=0.375*$height/$ref_l;
-my $upper_arm_rad=0.05*$height/$ref_l;
+my $upper_arm_rad=0.053*$height/$ref_l;
 my $lower_arm_len=0.275*$height/$ref_l;
-my $lower_arm_rad=0.05*$height/$ref_l;
+my $lower_arm_rad=0.048*$height/$ref_l;
 my $hand_rad=0.05*$height/$ref_l;
 
 warn(sprintf("final height %f\n",($calf_len+$thigh_len+2*$torso_half_height+$neck_len+2*$head_rad)));

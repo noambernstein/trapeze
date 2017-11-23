@@ -31,12 +31,17 @@ p.setGravity(0,0,-9.8)
 # load flyer and rig
 flyerID = p.loadMJCF("flyer.xml", flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)[0]
 ####################################################################################################
-tot_mass = 0.0
+torso_mass = p.getDynamicsInfo(flyerID,-1)[0]
+tot_mass = torso_mass
 for j in range(p.getNumJoints(flyerID)):
     tot_mass += p.getDynamicsInfo(flyerID,j)[0]
-    print ("flyer link # name mass",j,p.getJointInfo(flyerID,j)[-1].decode(),p.getDynamicsInfo(flyerID,j)[0])
 print("flyer total mass",tot_mass)
+print ("flyer base (torso) mass", torso_mass, int(torso_mass/tot_mass*100))
+for j in range(p.getNumJoints(flyerID)):
+    link_mass = p.getDynamicsInfo(flyerID,j)[0]
+    print ("flyer link # name mass %",j,p.getJointInfo(flyerID,j)[-1].decode(),link_mass, int(link_mass/tot_mass*100))
 ####################################################################################################
+sys.exit(1)
 rigIDs = p.loadMJCF("rig.xml")
 
 for j in range(p.getNumJoints(flyerID)):

@@ -32,51 +32,51 @@
 
     <worldbody>
         <body name='torso' pos='0 0 1.248'>
-            <geom name='torso' type='box' size='0.096 0.192 0.288'/>
+            <geom name='torso' type='box' size='0.0768 0.192 0.288'/>
             <geom name='head' type='sphere' pos='0 0 0.432' size='0.12' />
             <geom name='nose' type='sphere' pos='0.1344 0 0.432' size='0.0288' material='nose' />
             <body name='l_thigh' pos='0 0.096 -0.288'>
-                <geom name='l_thigh_1' type='capsule' fromto='0 0 -0.096    0 0 -0.288' size='0.096' />
-                <geom name='l_thigh_2' type='capsule' fromto='0 0 -0.384    0 0 -0.48' size='0.048' />
+                <geom name='l_thigh_1' type='capsule' fromto='0 0 -0.08448    0 0 -0.29952' size='0.08448' />
+                <geom name='l_thigh_2' type='capsule' fromto='0 0 -0.384    0 0 -0.48' size='0.04224' />
                 <joint name='l_hip_y' type='hinge' pos='0 0 0' axis='0 -1 0' range='-60 130'     armature='0.0080' />
                 <joint name='l_hip_x' type='hinge' pos='0 0 0' axis='1 0 0' range='-25 75'       armature='0.01' />
                 <!-- <joint name='l_hip_z' type='hinge' pos='0 0 0' axis='0 0 1' range='-60 130'     armature='0.0080' /> -->
                 <body name='l_lower_leg' pos='0 0.0 -0.48'>
-                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.1728 0 0 -0.4032' size='0.0768' />
-                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.0384 0 0 -0.1728' size='0.0384' />
+                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.158976 0 0 -0.417024' size='0.062976' />
+                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.031488 0 0 -0.158976' size='0.031488' />
                     <joint name='l_knee' type='hinge' pos='0 0 0' axis='0 1 0' range='0 160'       armature='0.01' />
                 </body>
             </body>
             <body name='r_thigh' pos='0 -0.096 -0.288'>
-                <geom name='r_thigh_1' type='capsule' fromto='0 0 -0.096    0 0 -0.288' size='0.096' />
-                <geom name='r_thigh_2' type='capsule' fromto='0 0 -0.384    0 0 -0.48' size='0.048' />
+                <geom name='r_thigh_1' type='capsule' fromto='0 0 -0.08448    0 0 -0.29952' size='0.08448' />
+                <geom name='r_thigh_2' type='capsule' fromto='0 0 -0.384    0 0 -0.48' size='0.04224' />
                 <joint name='r_hip_y' type='hinge' pos='0 0 0' axis='0 -1 0' range='-60 130'     armature='0.0080' />
                 <joint name='r_hip_x' type='hinge' pos='0 0 0' axis='-1 0 0' range='-25 75'       armature='0.01' />
                 <!-- <joint name='r_hip_z' type='hinge' pos='0 0 0' axis='0 0 -1' range='-60 130'     armature='0.0080' /> -->
                 <body name='r_lower_leg' pos='0 0.0 -0.48'>
-                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.1728 0 0 -0.4032' size='0.0768' />
-                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.0384 0 0 -0.1728' size='0.0384' />
+                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.158976 0 0 -0.417024' size='0.062976' />
+                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.031488 0 0 -0.158976' size='0.031488' />
                     <joint name='r_knee' type='hinge' pos='0 0 0' axis='0 1 0' range='0 160'       armature='0.01' />
                 </body>
             </body>
-            <body name='l_upper_arm' pos='0.0 0.24 0.24'>
-                <geom name='l_upper_arm' type='capsule' fromto='0.048 0 0 0.312 0 0' size='0.048' />
+            <body name='l_upper_arm' pos='0.0 0.24288 0.23712'>
+                <geom name='l_upper_arm' type='capsule' fromto='0.05088 0 0 0.30912 0 0' size='0.05088' />
                 <joint name='l_shoulder1' type='hinge' pos='0 0 0' axis='0 -1 0'  range='-130 105'     armature='0.0068' />
                 <joint name='l_shoulder2' type='hinge' pos='0 0 0' axis='0 0 1' range='-65 95'      armature='0.0051' />
                 <body name='l_lower_arm' pos='0.36 0.0 0.0'>
-                    <geom name='l_lower_arm' type='capsule' fromto='0.048 0 0 0.216 0 0' size='0.048' />
+                    <geom name='l_lower_arm' type='capsule' fromto='0.04608 0 0 0.21792 0 0' size='0.04608' />
                     <joint name='l_elbow' type='hinge' pos='0 0 0' axis='0 -1 0'  range='0 160'     armature='0.0068' />
                     <body name='l_hand' pos='0.264 0 0' >
                         <geom name='l_hand' type='sphere' pos='0.048 0 0' size='0.048' />
                     </body>
                 </body>
             </body>
-            <body name='r_upper_arm' pos='0.0 -0.24 0.24'>
-                <geom name='r_upper_arm' type='capsule' fromto='0.048 0 0 0.312 0 0' size='0.048' />
+            <body name='r_upper_arm' pos='0.0 -0.24288 0.23712'>
+                <geom name='r_upper_arm' type='capsule' fromto='0.05088 0 0 0.30912 0 0' size='0.05088' />
                 <joint name='r_shoulder1' type='hinge' pos='0 0 0' axis='0 -1 0' range='-130 105'     armature='0.0068' />
                 <joint name='r_shoulder2' type='hinge' pos='0 0 0' axis='0  0 -1' range='-65 95'      armature='0.0051' />
                 <body name='r_lower_arm' pos='0.36 0.0 0.0'>
-                    <geom name='r_lower_arm' type='capsule' fromto='0.048 0 0 0.216 0 0' size='0.048' />
+                    <geom name='r_lower_arm' type='capsule' fromto='0.04608 0 0 0.21792 0 0' size='0.04608' />
                     <joint name='r_elbow' type='hinge' pos='0 0 0' axis='0 -1 0'  range='0 160'     armature='0.0068' />
                     <body name='r_hand' pos='0.264 0 0' >
                         <geom name='r_hand' type='sphere' pos='0.048 0 0' size='0.048' />
