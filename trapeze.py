@@ -8,6 +8,7 @@ parser.add_argument('-t','--trick_name',type=str,action='store',default=None, he
 parser.add_argument('-g','--grip_width',type=float,action='store',default=0.5, help='width of grip in m')
 parser.add_argument('-m','--movie',type=str,action='store',default=None, help='make a movie from sequence initiated by key')
 parser.add_argument('-l','--movie_length',type=int,action='store',default='5', help='length of movie in seconds')
+parser.add_argument('-f','--movie_fps',type=int,action='store',default='30', help='frames per second in movie')
 args = parser.parse_args()
 
 import time
@@ -41,7 +42,6 @@ for j in range(p.getNumJoints(flyerID)):
     link_mass = p.getDynamicsInfo(flyerID,j)[0]
     print ("flyer link # name mass %",j,p.getJointInfo(flyerID,j)[-1].decode(),link_mass, int(link_mass/tot_mass*100))
 ####################################################################################################
-sys.exit(1)
 rigIDs = p.loadMJCF("rig.xml")
 
 for j in range(p.getNumJoints(flyerID)):
@@ -148,20 +148,24 @@ if args.trick_name is not None:
 
 print("MAIN LOOP")
 if args.movie is not None:
+    p.setTimeStep(dt)
     print("equilibrating for ",int(1.0/dt)," steps")
     for i in range(0,int(1.0/dt)):
         p.stepSimulation()
-    steps_per_frame = int((1.0/30.0)/dt)
+    steps_per_frame = int((1.0/args.movie_fps)/dt)
     i_frame = 0
     print("doing movie with ",steps_per_frame," steps per frame")
-    sim_state.do_key(args.movie)
-    for i in range(int(args.movie_length/dt)):
+    cur_time = 0.0
+    sim_state.do_key(args.movie, cur_time=cur_time)
+    for i_step in range(int(args.movie_length/dt)):
         p.stepSimulation()
-        if i%steps_per_frame == 0:
+        if i_step%steps_per_frame == 0:
             print("doing frame",i_frame)
             frame = p.getCameraImage(960,540, renderer=p.ER_BULLET_HARDWARE_OPENGL)
             png.fromarray(frame[2],'RGBA').save("frame.{:06d}.png".format(i_frame))
             i_frame += 1
+        cur_time += dt
+        sim_state.do_action_seq_stuff(cur_time)
 
 else:
     p.setRealTimeSimulation(1)

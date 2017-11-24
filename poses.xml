@@ -1,17 +1,17 @@
 <poses>
     <defaults >
-        <joint name='l_hip_x' value='0' force='200' />
+        <joint name='l_hip_x' value='0' force='150' />
         <joint name='l_hip_y' value='0' force='150' />
         <joint name='l_knee' value='0' force='150' />
-        <joint name='r_hip_x' value='0' force='200' />
+        <joint name='r_hip_x' value='0' force='150' />
         <joint name='r_hip_y' value='0' force='150' />
         <joint name='r_knee' value='0' force='150' />
-        <joint name='l_shoulder1' value='90' force='100' />
+        <joint name='l_shoulder1' value='90' force='75' />
         <joint name='l_shoulder2' value='0' force='75' />
-        <joint name='l_elbow' value='0' force='100' />
-        <joint name='r_shoulder1' value='90' force='100' />
+        <joint name='l_elbow' value='0' force='75' />
+        <joint name='r_shoulder1' value='90' force='75' />
         <joint name='r_shoulder2' value='0' force='75' />
-        <joint name='r_elbow' value='0' force='100' />
+        <joint name='r_elbow' value='0' force='75' />
     </defaults>
 
     <pose key='l' name='loose' >

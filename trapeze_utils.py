@@ -301,14 +301,17 @@ class SimulationState:
         if len(name) > 0:
             self.actions_by_name[name] = (action, kwargs)
 
-    def start_pose(self, pose_name,pose):
+    def start_pose(self, pose_name,pose, cur_time=None):
         print("  start pose",pose_name)
         for motorcontrol_kwargs in pose:
             p.setJointMotorControlArray(**motorcontrol_kwargs)
 
-    def start_action_seq(self,action_name,action_sequence):
+    def start_action_seq(self,action_name,action_sequence, cur_time = None):
         print("  start action sequence",action_name)
-        self.action_seq_start_time = time.time()
+        if cur_time is None:
+            self.action_seq_start_time = time.time()
+        else:
+            self.action_seq_start_time = cur_time
         self.current_action_seq = action_sequence
         self.action_seq_cur_index = 0
 
@@ -317,17 +320,19 @@ class SimulationState:
         (action_func, action_kwargs) = self.actions_by_name[name]
         action_func(**action_kwargs)
 
-    def do_key(self,key):
+    def do_key(self,key,cur_time=None):
         try:
             (action_func, action_kwargs) = self.actions_by_key[key]
             print("do key '{}'".format(key))
-            action_func(**action_kwargs)
+            action_func(**action_kwargs, cur_time=cur_time)
         except KeyError:
             pass
 
-    def do_action_seq_stuff(self):
+    def do_action_seq_stuff(self, cur_time=None):
         if self.current_action_seq is not None:
-            if (time.time() - self.action_seq_start_time) >= self.current_action_seq[self.action_seq_cur_index]:
+            if cur_time is None:
+                cur_time = time.time()
+            if (cur_time - self.action_seq_start_time) >= self.current_action_seq[self.action_seq_cur_index]:
                 action = self.current_action_seq[self.action_seq_cur_index+1][0]
                 action_arg = self.current_action_seq[self.action_seq_cur_index+1][1]
                 action(action_arg)
