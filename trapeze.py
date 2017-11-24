@@ -14,10 +14,9 @@ args = parser.parse_args()
 import time
 import numpy as np
 import pybullet as p
-try:
-    import png
-except:
-    pass
+if args.movie is not None:
+    import subprocess
+    from PIL import Image
 
 from trapeze_utils import *
 
@@ -157,15 +156,29 @@ if args.movie is not None:
     print("doing movie with ",steps_per_frame," steps per frame")
     cur_time = 0.0
     sim_state.do_key(args.movie, cur_time=cur_time)
+    cmdstring = ('ffmpeg',
+                 '-y',
+                 '-s', '%dx%d' % (960,540),
+                 '-f','image2pipe',
+                 '-vcodec', 'mjpeg',
+                 '-i', '-',
+                 '-r', '%d' % args.movie_fps,
+                 'movie.mp4'
+             )
+                 # '-vcodec', 'mpeg4',
+    ffmpeg = subprocess.Popen(cmdstring, stdin=subprocess.PIPE, shell=False)
     for i_step in range(int(args.movie_length/dt)):
         p.stepSimulation()
         if i_step%steps_per_frame == 0:
             print("doing frame",i_frame)
             frame = p.getCameraImage(960,540, renderer=p.ER_BULLET_HARDWARE_OPENGL)
-            png.fromarray(frame[2],'RGBA').save("frame.{:06d}.png".format(i_frame))
+            im = Image.fromarray(frame[2], 'RGBA')
+            # png.fromarray(frame[2],'RGBA').save("frame.{:06d}.png".format(i_frame))
+            ffmpeg.stdin.write(im.convert('RGB').tobytes('jpeg','RGB'))
             i_frame += 1
         cur_time += dt
         sim_state.do_action_seq_stuff(cur_time)
+    ffmpeg.stdin.close()
 
 else:
     p.setRealTimeSimulation(1)
