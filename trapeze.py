@@ -6,7 +6,7 @@ import argparse
 parser = argparse.ArgumentParser(description="flying trapeze simulation")
 parser.add_argument('-t','--trick_name',type=str,action='store',default=None, help='name of trick triggered by key "t"')
 parser.add_argument('-g','--grip_width',type=float,action='store',default=0.5, help='width of grip in m')
-parser.add_argument('-m','--movie',type=str,action='store',default=None, help='make a movie from sequence initiated by key')
+parser.add_argument('-m','--movie',type=str,action='store',default=None, help='name of movie file to make from action initiated by --trick_name')
 parser.add_argument('-l','--movie_length',type=int,action='store',default='5', help='length of movie in seconds')
 parser.add_argument('-f','--movie_fps',type=int,action='store',default='30', help='frames per second in movie')
 args = parser.parse_args()
@@ -17,6 +17,8 @@ import pybullet as p
 if args.movie is not None:
     import subprocess
     from PIL import Image
+    if args.trick_name is None:
+        raise ValueError("Need trick name to make a movie from")
 
 from trapeze_utils import *
 
@@ -155,7 +157,7 @@ if args.movie is not None:
     i_frame = 0
     print("doing movie with ",steps_per_frame," steps per frame")
     cur_time = 0.0
-    sim_state.do_key(args.movie, cur_time=cur_time)
+    sim_state.do_key('t', cur_time=cur_time)
     cmdstring = ('ffmpeg',
                  '-y',
                  '-s', '%dx%d' % (960,540),
@@ -163,7 +165,7 @@ if args.movie is not None:
                  '-vcodec', 'mjpeg',
                  '-i', '-',
                  '-r', '%d' % args.movie_fps,
-                 'movie.mp4'
+                 args.movie
              )
                  # '-vcodec', 'mpeg4',
     ffmpeg = subprocess.Popen(cmdstring, stdin=subprocess.PIPE, shell=False)
