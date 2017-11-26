@@ -9,6 +9,7 @@ parser.add_argument('-g','--grip_width',type=float,action='store',default=0.5, h
 parser.add_argument('-m','--movie',type=str,action='store',default=None, help='name of movie file to make from action initiated by --trick_name')
 parser.add_argument('-l','--movie_length',type=int,action='store',default='5', help='length of movie in seconds')
 parser.add_argument('-f','--movie_fps',type=int,action='store',default='30', help='frames per second in movie')
+parser.add_argument('-d','--dt',type=float,action='store',default='0.01', help='time step for non-real-time parts')
 args = parser.parse_args()
 
 import time
@@ -99,23 +100,22 @@ for (key,name,action_seq) in action_sequences:
 # create simulation state from poses
 sim_state = SimulationState(poses, action_sequences)
 
-dt=0.01
 print ("READY")
-p.setTimeStep(dt)
+p.setTimeStep(args.dt)
 sim_state.do_name('ready')
-for i in range(int(0.2/dt)):
+for i in range(int(0.2/args.dt)):
     p.stepSimulation()
 
 print("GRAB BAR")
 # settle down bar position
-for i in range(int(0.2/dt)):
+for i in range(int(0.2/args.dt)):
     p.stepSimulation()
 # release bar from hold and grab with hands
 p.removeConstraint(bar_serve_hold)
 bar_serve_hold = None
 flyer_hands_attachment_constraints = grab_bar_with_hands(find_link('fly_bar'),find_link('l_hand'),find_link('r_hand'), args.grip_width)
 # settle down hands
-for i in range(int(0.2/dt)):
+for i in range(int(0.2/args.dt)):
     p.stepSimulation()
 
 
@@ -149,11 +149,10 @@ if args.trick_name is not None:
 
 print("MAIN LOOP")
 if args.movie is not None:
-    p.setTimeStep(dt)
-    print("equilibrating for ",int(1.0/dt)," steps")
-    for i in range(0,int(1.0/dt)):
+    print("equilibrating for ",int(1.0/args.dt)," steps")
+    for i in range(0,int(1.0/args.dt)):
         p.stepSimulation()
-    steps_per_frame = int((1.0/args.movie_fps)/dt)
+    steps_per_frame = int((1.0/args.movie_fps)/args.dt)
     i_frame = 0
     print("doing movie with ",steps_per_frame," steps per frame")
     cur_time = 0.0
@@ -169,7 +168,7 @@ if args.movie is not None:
              )
                  # '-vcodec', 'mpeg4',
     ffmpeg = subprocess.Popen(cmdstring, stdin=subprocess.PIPE, shell=False)
-    for i_step in range(int(args.movie_length/dt)):
+    for i_step in range(int(args.movie_length/args.dt)):
         p.stepSimulation()
         if i_step%steps_per_frame == 0:
             print("doing frame",i_frame)
@@ -178,7 +177,7 @@ if args.movie is not None:
             # png.fromarray(frame[2],'RGBA').save("frame.{:06d}.png".format(i_frame))
             ffmpeg.stdin.write(im.convert('RGB').tobytes('jpeg','RGB'))
             i_frame += 1
-        cur_time += dt
+        cur_time += args.dt
         sim_state.do_action_seq_stuff(cur_time)
     ffmpeg.stdin.close()
 
