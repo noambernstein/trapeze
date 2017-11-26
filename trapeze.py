@@ -9,7 +9,7 @@ parser.add_argument('-g','--grip_width',type=float,action='store',default=0.5, h
 parser.add_argument('-m','--movie',type=str,action='store',default=None, help='name of movie file to make from action initiated by --trick_name')
 parser.add_argument('-l','--movie_length',type=int,action='store',default='5', help='length of movie in seconds')
 parser.add_argument('-f','--movie_fps',type=int,action='store',default='30', help='frames per second in movie')
-parser.add_argument('-d','--dt',type=float,action='store',default='0.01', help='time step for non-real-time parts')
+parser.add_argument('-d','--dt',type=float,action='store',default='-1', help='time step for non-real-time parts')
 args = parser.parse_args()
 
 import time
@@ -28,7 +28,6 @@ do_exercise = len(sys.argv) > 1 and sys.argv[1] == "--exercise"
 physicsClient = p.connect(p.GUI) #or p.DIRECT for non-graphical version
 p.setPhysicsEngineParameter(numSolverIterations=1000)
 
-# p.setGravity(0,0,0)
 p.setGravity(0,0,-9.8)
 
 # load flyer and rig
@@ -51,6 +50,9 @@ for j in range(p.getNumJoints(flyerID)):
 for i in rigIDs:
     for j in range(p.getNumJoints(i)):
         p.changeDynamics(i,j,linearDamping=0.02, angularDamping=0.02)
+
+if args.dt > 0.0:
+    p.setTimeStep(args.dt)
 
 print(flyerID,rigIDs)
 
@@ -101,9 +103,8 @@ for (key,name,action_seq) in action_sequences:
 sim_state = SimulationState(poses, action_sequences)
 
 print ("READY")
-p.setTimeStep(args.dt)
 sim_state.do_name('ready')
-for i in range(int(0.2/args.dt)):
+for i in range(int(0.5/args.dt)):
     p.stepSimulation()
 
 print("GRAB BAR")
