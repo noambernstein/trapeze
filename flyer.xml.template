@@ -61,7 +61,7 @@
             </body>
             <body name='l_upper_arm' pos='0.0 (T_TORSO_HALF_WIDTH+T_UPPER_ARM_RAD) (T_TORSO_HALF_HEIGHT-T_UPPER_ARM_RAD)'>
                 <geom name='l_upper_arm' type='capsule' fromto='T_UPPER_ARM_RAD 0 0 (T_UPPER_ARM_LEN-T_UPPER_ARM_RAD) 0 0' size='T_UPPER_ARM_RAD' />
-                <joint name='l_shoulder1' type='hinge' pos='0 0 0' axis='0 -1 0'  range='-130 105'     armature='0.0068' />
+                <joint name='l_shoulder1' type='hinge' pos='0 0 0' axis='0 -1 0'  range='-120 105'     armature='0.0068' />
                 <joint name='l_shoulder2' type='hinge' pos='0 0 0' axis='0 0 1' range='-65 95'      armature='0.0051' />
                 <body name='l_lower_arm' pos='T_UPPER_ARM_LEN 0.0 0.0'>
                     <geom name='l_lower_arm' type='capsule' fromto='T_LOWER_ARM_RAD 0 0 (T_LOWER_ARM_LEN-T_LOWER_ARM_RAD) 0 0' size='T_LOWER_ARM_RAD' />
@@ -73,7 +73,7 @@
             </body>
             <body name='r_upper_arm' pos='0.0 -(T_TORSO_HALF_WIDTH+T_UPPER_ARM_RAD) (T_TORSO_HALF_HEIGHT-T_UPPER_ARM_RAD)'>
                 <geom name='r_upper_arm' type='capsule' fromto='T_UPPER_ARM_RAD 0 0 (T_UPPER_ARM_LEN-T_UPPER_ARM_RAD) 0 0' size='T_UPPER_ARM_RAD' />
-                <joint name='r_shoulder1' type='hinge' pos='0 0 0' axis='0 -1 0' range='-130 105'     armature='0.0068' />
+                <joint name='r_shoulder1' type='hinge' pos='0 0 0' axis='0 -1 0' range='-120 105'     armature='0.0068' />
                 <joint name='r_shoulder2' type='hinge' pos='0 0 0' axis='0  0 -1' range='-65 95'      armature='0.0051' />
                 <body name='r_lower_arm' pos='T_UPPER_ARM_LEN 0.0 0.0'>
                     <geom name='r_lower_arm' type='capsule' fromto='T_LOWER_ARM_RAD 0 0 (T_LOWER_ARM_LEN-T_LOWER_ARM_RAD) 0 0' size='T_LOWER_ARM_RAD' />
