@@ -1,17 +1,27 @@
 <poses>
+    <!-- hips 150 -->
+    <!-- https://www.researchgate.net/figure/268233631_fig4_Figure-1-Hip-flexion-torque-and-electromyography-during-isometric-contraction-a -->
+    <!-- elbows 50 -->
+    <!-- https://www.researchgate.net/figure/264817651_fig4_Figure-4-Elbow-flexion-torque-for-different-shoulder-flexion-angles-and-a-neutral -->
+    <!-- shoulders 30-50 ft-lb == 50-75 N m -->
+    <!-- http://www.jospt.org/doi/pdf/10.2519/jospt.1987.8.11.518?code=jospt-site -->
     <defaults >
         <joint name='l_hip_x' value='0' force='150' />
-        <joint name='l_hip_y' value='0' force='150' />
-        <joint name='l_knee' value='0' force='150' />
         <joint name='r_hip_x' value='0' force='150' />
+
+        <joint name='l_hip_y' value='0' force='150' />
         <joint name='r_hip_y' value='0' force='150' />
+
+        <joint name='l_knee' value='0' force='150' />
         <joint name='r_knee' value='0' force='150' />
+
         <joint name='l_shoulder1' value='90' force='75' />
         <joint name='l_shoulder2' value='0' force='75' />
-        <joint name='l_elbow' value='0' force='75' />
+        <joint name='l_elbow' value='0' force='50' />
+
         <joint name='r_shoulder1' value='90' force='75' />
         <joint name='r_shoulder2' value='0' force='75' />
-        <joint name='r_elbow' value='0' force='75' />
+        <joint name='r_elbow' value='0' force='50' />
     </defaults>
 
     <pose key='l' name='loose' >
