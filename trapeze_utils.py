@@ -32,7 +32,7 @@ def fix_in_space(obj, type):
         c = p.createConstraint(parentBodyUniqueId=obj[0], parentLinkIndex=obj[1],
             childBodyUniqueId=-1, childLinkIndex=-1,
             jointType=p.JOINT_FIXED, jointAxis=[0,0,1],
-            parentFramePosition=[0,0,0], childFramePosition=pos)
+            parentFramePosition=[0,0,0], parentFrameOrientation=orient, childFramePosition=pos)
     else:
         raise ValueError("Unknown fix in space type "+type)
 
