@@ -132,7 +132,7 @@ def takeoff_release_hep(cur_time=None):
     if belt_hold_constraint is not None: # takeoff
         p.removeConstraint(belt_hold_constraint)
         belt_hold_constraint = None
-        p.resetBaseVelocity(flyerID,linearVelocity=[0,0,3],angularVelocity=[0,1.5,0])
+        p.resetBaseVelocity(flyerID,linearVelocity=[0,0,2.0],angularVelocity=[0,3.0,0])
         sim_state.do_name('seven')
     else: # release
         for constraint in flyer_hands_attachment_constraints:
