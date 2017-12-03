@@ -94,10 +94,12 @@ if len(sys.argv) > 1 and sys.argv[1] == "--exercise":
 (poses, action_sequences) = parse_poses(flyerID, "poses.xml")
 print("KNOWN POSES:")
 for (key,name,pose) in poses:
-    print_pose(key, name, pose)
+    print("{} {}".format(key,name))
+    print_pose(pose)
 print("KNOWN POSE SEQUENCES:")
 for (key,name,action_seq) in action_sequences:
-    print_action_seq(key, name, action_seq)
+    print("{} {}".format(key,name))
+    print_action_seq(action_seq)
 
 # create simulation state from poses
 sim_state = SimulationState(poses, action_sequences)
@@ -123,7 +125,7 @@ for i in range(int(0.2/args.dt)):
 ###################################################################################################
 ## actions that aren't poses
 ###################################################################################################
-def takeoff_release_hep():
+def takeoff_release_hep(cur_time=None):
     global belt_hold_constraint, flyer_hands_attachment_constraints
     print("  takeoff/release hep")
 
@@ -136,7 +138,7 @@ def takeoff_release_hep():
         for constraint in flyer_hands_attachment_constraints:
             p.removeConstraint(constraint)
 
-def gravity():
+def gravity(cur_time=None):
     print("  disable gravity")
     p.setGravity(0,0,0)
     p.resetBaseVelocity(flyerID,linearVelocity=[0,0,0],angularVelocity=[0,0,0])
@@ -179,7 +181,7 @@ if args.movie is not None:
             ffmpeg.stdin.write(im.convert('RGB').tobytes('jpeg','RGB'))
             i_frame += 1
         cur_time += args.dt
-        sim_state.do_action_seq_stuff(cur_time)
+        sim_state.do_pose_stuff(cur_time)
     ffmpeg.stdin.close()
 
 else:
@@ -193,6 +195,6 @@ else:
                 sim_state.do_key(chr(key_ord))
 
         # do pose sequence things
-        sim_state.do_action_seq_stuff()
+        sim_state.do_pose_stuff()
 
 p.disconnect()

@@ -166,7 +166,7 @@ def parse_poses(flyerID, file):
     poses_info = ET.parse(file).getroot()
     poses = []
     action_sequences = []
-    default_pose = { 'bodyIndex' : -1, 'jointIndices' : [], 'controlMode' : p.POSITION_CONTROL, 'targetPositions' : [], 'forces' : [] }
+    pose_default = { 'body_index' : -1, 'joint_indices' : [], 'target_positions' : [], 'speeds' : [], 'crit_angles' : [], 'max_forces' : [] }
     for child in poses_info:
         # print(child.tag)
         if child.tag == 'defaults':
@@ -176,11 +176,20 @@ def parse_poses(flyerID, file):
                 name = joint.attrib['name']
                 id = joint_ids[name]
                 value = float(joint.attrib['value'])
+                vel = float(joint.attrib['speed'])
+                crit_angle = float(joint.attrib['crit_angle'])
                 force = float(joint.attrib['force'])
-                default_pose['bodyIndex'] = flyerID
-                default_pose['jointIndices'].append(id)
-                default_pose['targetPositions'].append(value*deg)
-                default_pose['forces'].append(force)
+                pose_default['body_index'] = flyerID
+                pose_default['joint_indices'].append(id)
+                pose_default['target_positions'].append(value*deg)
+                pose_default['speeds'].append(vel*deg)
+                pose_default['crit_angles'].append(crit_angle*deg)
+                pose_default['max_forces'].append(force)
+
+            pose_default['target_positions'] = np.array(pose_default['target_positions'])
+            pose_default['speeds'] = np.array(pose_default['speeds'])
+            pose_default['crit_angles'] = np.array(pose_default['crit_angles'])
+            pose_default['max_forces'] = np.array(pose_default['max_forces'])
         elif child.tag == 'pose':
             try:
                 pose_name=child.attrib['name']
@@ -191,11 +200,13 @@ def parse_poses(flyerID, file):
             except KeyError:
                 pose_key=''
             pose = {}
-            for key in default_pose:
+            for key in pose_default:
                 try:
-                    pose[key] = default_pose[key].copy()
+                    pose[key] = pose_default[key].copy()
                 except:
-                    pose[key] = default_pose[key]
+                    pose[key] = pose_default[key]
+
+            pose['name'] = pose_name
 
             for joint in child:
                 # print("parsing joint in pose",joint.tag,joint.attrib)
@@ -203,18 +214,25 @@ def parse_poses(flyerID, file):
                     raise ValueError("Unknown tag inside pose "+joint.tag)
                 joint_name=joint.attrib['name']
                 joint_id=joint_ids[joint_name]
-                arrays_index = pose['jointIndices'].index(joint_id)
+                arrays_index = pose['joint_indices'].index(joint_id)
                 try:
-                    pose['targetPositions'][arrays_index] = float(joint.attrib['value'])*deg
+                    pose['target_positions'][arrays_index] = float(joint.attrib['value'])*deg
                 except:
                     pass
                 try:
-                    pose['forces'][arrays_index] = float(joint.attrib['force'])
+                    pose['speeds'][arrays_index] = float(joint.attrib['speed'])*deg
+                except:
+                    pass
+                try:
+                    pose['crit_angles'][arrays_index] = float(joint.attrib['crit_angle'])*deg
+                except:
+                    pass
+                try:
+                    pose['max_forces'][arrays_index] = float(joint.attrib['force'])
                 except:
                     pass
 
-            # return an array of poses so it's possible to have multiple types of control, but only position implemented for now
-            poses.append((pose_key, pose_name, [pose]))
+            poses.append((pose_key, pose_name, pose))
         elif child.tag == 'action_sequence':
 
             try:
@@ -231,16 +249,12 @@ def parse_poses(flyerID, file):
             for elem in child:
                 # print("in child",elem.tag)
                 if elem.tag == 'pose':
-                    if 'key' in elem.attrib:
-                        action_seq.append(('key',elem.attrib['key']))
-                        if 'name' in elem.attrib:
-                            raise ValueError('key and attrib in same elem of action_sequence')
-                    elif 'name' in elem.attrib:
+                    if 'name' in elem.attrib:
                         action_seq.append(('name',elem.attrib['name']))
                         if 'key' in elem.attrib:
                             raise ValueError('key and attrib in same elem of action_sequence')
                     else:
-                        raise ValueError('Neither key nor name specified in pose in action_sequence {}'.format(action_seq_name))
+                        raise ValueError('No name specified in pose in action_sequence {}'.format(action_seq_name))
                 elif elem.tag == 'wait':
                     cumul_wait += float(elem.attrib['time'])
                     action_seq.append(cumul_wait)
@@ -253,15 +267,12 @@ def parse_poses(flyerID, file):
 
     return (poses, action_sequences)
 
-def print_pose(key, name, pose_a):
-    print("key {} pose {}".format(key, name))
-    for pose in pose_a:
-        print("body",p.getBodyInfo(pose['bodyIndex']))
-        for (joint_id, value, force) in zip(pose['jointIndices'],pose['targetPositions'],pose['forces']):
-            print("  joint",p.getJointInfo(pose['bodyIndex'],joint_id)[1],value,force)
+def print_pose(pose):
+    print("body",p.getBodyInfo(pose['body_index']))
+    for (joint_id, value, speed, crit_angle, force) in zip(pose['joint_indices'],pose['target_positions'],pose['speeds'],pose['crit_angles'],pose['max_forces']):
+        print("  joint",p.getJointInfo(pose['body_index'],joint_id)[1],"pos",value/deg,"speed",speed/deg,"crit angle",crit_angle/deg,"force",force)
 
-def print_action_seq(key, name, action_sequence):
-    print("key {} action_sequence {}".format(key, name))
+def print_action_seq(action_sequence):
     for elem in action_sequence:
         if isinstance(elem,float):
             print("  wait",elem)
@@ -271,6 +282,7 @@ def print_action_seq(key, name, action_sequence):
 class SimulationState:
 
     def __init__(self, poses, action_sequences):
+        self.current_pose = None
         self.current_action_seq = None
         self.action_seq_start_time=-1
         self.action_seq_cur_index=-1
@@ -282,7 +294,6 @@ class SimulationState:
         for (key, name, pose) in poses:
             self.register_action(key, name, self.start_pose, pose_name=name, pose=pose)
         for (key, name, action_seq) in action_sequences:
-            print("action_seq",action_seq)
             for i in range(0,len(action_seq),2):
                 if action_seq[i+1][0] == 'key':
                     action_seq[i+1] = (self.do_key, action_seq[i+1][1])
@@ -303,8 +314,7 @@ class SimulationState:
 
     def start_pose(self, pose_name,pose, cur_time=None):
         print("  start pose",pose_name)
-        for motorcontrol_kwargs in pose:
-            p.setJointMotorControlArray(**motorcontrol_kwargs)
+        self.current_pose = pose
 
     def start_action_seq(self,action_name,action_sequence, cur_time = None):
         print("  start action sequence",action_name)
@@ -328,7 +338,7 @@ class SimulationState:
         except KeyError:
             pass
 
-    def do_action_seq_stuff(self, cur_time=None):
+    def do_pose_stuff(self, cur_time=None):
         if self.current_action_seq is not None:
             if cur_time is None:
                 cur_time = time.time()
@@ -339,3 +349,23 @@ class SimulationState:
                 self.action_seq_cur_index += 2
                 if self.action_seq_cur_index >= len(self.current_action_seq):
                     self.current_action_seq = None
+        if self.current_pose is not None:
+            body_id = self.current_pose['body_index']
+            joint_ids = self.current_pose['joint_indices']
+            joint_states = p.getJointStates(body_id, joint_ids)
+            joint_cur_positions = [j[0] for j in joint_states]
+            delta_pos = self.current_pose['target_positions']-joint_cur_positions
+            delta_pos_sign = np.sign(delta_pos)
+            joint_velocities = delta_pos_sign*self.current_pose['speeds']
+            crit_angles = self.current_pose['crit_angles']
+            close_joints = (np.abs(delta_pos) < crit_angles)
+            joint_velocities[close_joints] *= delta_pos_sign[close_joints]*delta_pos[close_joints]/crit_angles[close_joints]
+            #####
+            # if self.current_pose['name'] == 'flat':
+                # print("POSE")
+                # for i in range(len(joint_ids)):
+                    # print(i,p.getJointInfo(body_id,joint_ids[i])[1],"cur pos",joint_cur_positions[i]/deg,"target pos",self.current_pose['target_positions'][i]/deg,
+                        # "vel",joint_velocities[i]/deg)
+            #####
+            p.setJointMotorControlArray(body_id, jointIndices=joint_ids, controlMode=p.VELOCITY_CONTROL,
+                targetVelocities=joint_velocities, forces=self.current_pose['max_forces'])
