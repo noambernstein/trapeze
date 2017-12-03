@@ -6,49 +6,50 @@
     <!-- https://www.researchgate.net/figure/264817651_fig4_Figure-4-Elbow-flexion-torque-for-different-shoulder-flexion-angles-and-a-neutral -->
     <!-- shoulders 30-50 ft-lb == 50-75 N m -->
     <!-- http://www.jospt.org/doi/pdf/10.2519/jospt.1987.8.11.518?code=jospt-site -->
-    <!-- joint values in degrees -->
+
+    <!-- joint values in degrees, speeds in deg/sec, torques(torques -->
     <defaults >
-        <joint name='l_hip_x' value='0' force='150' speed='180' crit_angle='10' />
-        <joint name='r_hip_x' value='0' force='150' speed='180' crit_angle='10' />
+        <joint name='l_hip_x' value='0' torque='150' speed='180' crit_angle='10' />
+        <joint name='r_hip_x' value='0' torque='150' speed='180' crit_angle='10' />
 
-        <joint name='l_hip_y' value='0' force='150' speed='180' crit_angle='10' />
-        <joint name='r_hip_y' value='0' force='150' speed='180' crit_angle='10' />
+        <joint name='l_hip_y' value='0' torque='150' speed='180' crit_angle='10' />
+        <joint name='r_hip_y' value='0' torque='150' speed='180' crit_angle='10' />
 
-        <joint name='l_knee' value='0' force='150' speed='180' crit_angle='5' />
-        <joint name='r_knee' value='0' force='150' speed='180' crit_angle='5' />
+        <joint name='l_knee' value='0' torque='150' speed='180' crit_angle='5' />
+        <joint name='r_knee' value='0' torque='150' speed='180' crit_angle='5' />
 
-        <joint name='l_shoulder1' value='90' force='75' speed='180' crit_angle='10' />
-        <joint name='l_shoulder2' value='0' force='75' speed='180' crit_angle='10' />
-        <joint name='l_elbow' value='0' force='50' speed='180' crit_angle='5' />
+        <joint name='l_shoulder1' value='90' torque='75' speed='180' crit_angle='10' />
+        <joint name='l_shoulder2' value='0' torque='75' speed='180' crit_angle='10' />
+        <joint name='l_elbow' value='0' torque='50' speed='180' crit_angle='5' />
 
-        <joint name='r_shoulder1' value='90' force='75' speed='180' crit_angle='10' />
-        <joint name='r_shoulder2' value='0' force='75' speed='180' crit_angle='10' />
-        <joint name='r_elbow' value='0' force='50' speed='180' crit_angle='5' />
+        <joint name='r_shoulder1' value='90' torque='75' speed='180' crit_angle='10' />
+        <joint name='r_shoulder2' value='0' torque='75' speed='180' crit_angle='10' />
+        <joint name='r_elbow' value='0' torque='50' speed='180' crit_angle='5' />
     </defaults>
 
-    <!-- forces like joint torques in N.m -->
+    <!-- torques like joint torques in N.m -->
     <!-- pose speed in deg/sec -->
 
     <pose key='l' name='loose' >
-        <joint name='l_hip_x' force='0' />
-        <joint name='r_hip_x' force='0' />
-        <joint name='l_hip_y' force='0' />
-        <joint name='r_hip_y' force='0' />
-        <joint name='l_knee' force='0' />
-        <joint name='r_knee' force='0' />
-        <joint name='l_shoulder1' force='0' />
-        <joint name='l_shoulder2' force='0' />
-        <joint name='l_elbow' force='0' />
-        <joint name='r_elbow' force='0' />
-        <joint name='r_shoulder1' force='0' />
-        <joint name='r_shoulder2' force='0' />
+        <joint name='l_hip_x' torque='10' />
+        <joint name='r_hip_x' torque='10' />
+        <joint name='l_hip_y' torque='10' />
+        <joint name='r_hip_y' torque='10' />
+        <joint name='l_knee' torque='10' />
+        <joint name='r_knee' torque='10' />
+        <joint name='l_shoulder1' torque='10' />
+        <joint name='l_shoulder2' torque='10' />
+        <joint name='l_elbow' torque='10' />
+        <joint name='r_elbow' torque='10' />
+        <joint name='r_shoulder1' torque='10' />
+        <joint name='r_shoulder2' torque='10' />
     </pose>
 
     <pose key='r' name='ready' >
         <joint name='l_shoulder1' value='30'/>
         <joint name='r_shoulder1' value='30'/>
-        <joint name='l_shoulder2' force='1' />
-        <joint name='r_shoulder2' force='1' />
+        <joint name='l_shoulder2' torque='1' />
+        <joint name='r_shoulder2' torque='1' />
         <joint name='l_hip_y' value='10' />
         <joint name='r_hip_y' value='10' />
         <joint name='l_knee' value='30' />
@@ -56,12 +57,6 @@
     </pose>
 
     <pose key='f' name='flat' >
-        <!--
-        <joint name='l_shoulder1' value='90' />
-        <joint name='r_shoulder1' value='90' />
-        <joint name='l_hip_y' value='10' />
-        <joint name='r_hip_y' value='10' />
-        -->
     </pose>
 
     <pose name='seven' >

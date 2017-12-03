@@ -146,7 +146,7 @@ def exercise(flyerID, name_list):
 
             # modify motor control
             if i_frame%int(1.0/dt) == 0:
-                p.setJointMotorControl2(flyerID,joint,p.VELOCITY_CONTROL,targetVelocity=6*dir,force=100)
+                p.setJointMotorControl2(flyerID,joint,p.VELOCITY_CONTROL,targetVelocity=6*dir,torque=100)
                 dir *= -1
             i_frame += 1
 
@@ -166,7 +166,7 @@ def parse_poses(flyerID, file):
     poses_info = ET.parse(file).getroot()
     poses = []
     action_sequences = []
-    pose_default = { 'body_index' : -1, 'joint_indices' : [], 'target_positions' : [], 'speeds' : [], 'crit_angles' : [], 'max_forces' : [] }
+    pose_default = { 'body_index' : -1, 'joint_indices' : [], 'target_positions' : [], 'speeds' : [], 'crit_angles' : [], 'max_torques' : [] }
     for child in poses_info:
         # print(child.tag)
         if child.tag == 'defaults':
@@ -178,18 +178,18 @@ def parse_poses(flyerID, file):
                 value = float(joint.attrib['value'])
                 vel = float(joint.attrib['speed'])
                 crit_angle = float(joint.attrib['crit_angle'])
-                force = float(joint.attrib['force'])
+                torque = float(joint.attrib['torque'])
                 pose_default['body_index'] = flyerID
                 pose_default['joint_indices'].append(id)
                 pose_default['target_positions'].append(value*deg)
                 pose_default['speeds'].append(vel*deg)
                 pose_default['crit_angles'].append(crit_angle*deg)
-                pose_default['max_forces'].append(force)
+                pose_default['max_torques'].append(torque)
 
             pose_default['target_positions'] = np.array(pose_default['target_positions'])
             pose_default['speeds'] = np.array(pose_default['speeds'])
             pose_default['crit_angles'] = np.array(pose_default['crit_angles'])
-            pose_default['max_forces'] = np.array(pose_default['max_forces'])
+            pose_default['max_torques'] = np.array(pose_default['max_torques'])
         elif child.tag == 'pose':
             try:
                 pose_name=child.attrib['name']
@@ -228,7 +228,7 @@ def parse_poses(flyerID, file):
                 except:
                     pass
                 try:
-                    pose['max_forces'][arrays_index] = float(joint.attrib['force'])
+                    pose['max_torques'][arrays_index] = float(joint.attrib['torque'])
                 except:
                     pass
 
@@ -269,8 +269,8 @@ def parse_poses(flyerID, file):
 
 def print_pose(pose):
     print("body",p.getBodyInfo(pose['body_index']))
-    for (joint_id, value, speed, crit_angle, force) in zip(pose['joint_indices'],pose['target_positions'],pose['speeds'],pose['crit_angles'],pose['max_forces']):
-        print("  joint",p.getJointInfo(pose['body_index'],joint_id)[1],"pos",value/deg,"speed",speed/deg,"crit angle",crit_angle/deg,"force",force)
+    for (joint_id, value, speed, crit_angle, torque) in zip(pose['joint_indices'],pose['target_positions'],pose['speeds'],pose['crit_angles'],pose['max_torques']):
+        print("  joint",p.getJointInfo(pose['body_index'],joint_id)[1],"pos",value/deg,"speed",speed/deg,"crit angle",crit_angle/deg,"torque",torque)
 
 def print_action_seq(action_sequence):
     for elem in action_sequence:
@@ -368,4 +368,4 @@ class SimulationState:
                         # "vel",joint_velocities[i]/deg)
             #####
             p.setJointMotorControlArray(body_id, jointIndices=joint_ids, controlMode=p.VELOCITY_CONTROL,
-                targetVelocities=joint_velocities, forces=self.current_pose['max_forces'])
+                targetVelocities=joint_velocities, forces=self.current_pose['max_torques'])
