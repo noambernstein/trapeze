@@ -114,8 +114,8 @@ for i in range(int(0.5/args.dt)):
     p.stepSimulation()
     sim_state.do_pose_stuff()
 
+# position flyer relative to board
 (flyer_pos, _) = p.getBasePositionAndOrientation(flyerID)
-print("flyer com pos", flyer_pos)
 (_, l_lower_leg_link) = find_link('l_lower_leg')
 (_, r_lower_leg_link) = find_link('r_lower_leg')
 (board_base, _) = find_link('board')
@@ -123,26 +123,19 @@ l_closest_points = p.getClosestPoints(bodyA=board_base, bodyB=flyerID, linkIndex
 min_z = flyer_pos[2]
 for cp in l_closest_points:
     if cp[6][2] < min_z:
-        l_foot_x = cp[6][0]
-        l_foot_z = cp[6][2]
+        l_foot = np.array(cp[6])
+        min_z = l_foot[2]
 r_closest_points = p.getClosestPoints(bodyA=board_base, bodyB=flyerID, linkIndexB=r_lower_leg_link, distance=1.0)
+min_z = flyer_pos[2]
 for cp in r_closest_points:
     if cp[6][2] < min_z:
-        r_foot_x = cp[6][0]
-        r_foot_z = cp[6][2]
-print("l_foot",l_foot_x,l_foot_z)
-print("r_foot",r_foot_x,r_foot_z)
-mean_x = 0.5*(l_foot_x+r_foot_x)
-mean_z = 0.5*(l_foot_z+r_foot_z)
-print("world coord mean pos",mean_x,mean_z)
-print("board edge",board_edge)
-print("flyer_board_offset_final",flyer_board_offset_final)
-dx = (board_edge[0]+flyer_board_offset_final[0])-mean_x
-dz = (board_edge[2]+flyer_board_offset_final[2])-mean_z
-print("dx",dx,"dz",dz)
-flyer_pos = np.array(flyer_pos) + [dx, 0, dz]
-print("new flyer pos", flyer_pos)
+        r_foot = np.array(cp[6])
+        min_z = r_foot[2]
+mean_foot = 0.5*(l_foot+r_foot)
+dpos = board_edge + flyer_board_offset_final-mean_foot
+flyer_pos = np.array(flyer_pos) + dpos
 
+# move belt hold to new position
 p.removeConstraint(belt_hold_constraint)
 p.resetBasePositionAndOrientation(flyerID,flyer_pos,
     p.multiplyTransforms([0,0,0],flyer_orient,[0,0,0],p.getQuaternionFromEuler([0,20*deg,180*deg]))[1])
