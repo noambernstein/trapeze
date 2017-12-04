@@ -47,21 +47,20 @@
         </body>
 
         <!-- fly cable length 12' = 3.64 m -->
-        <!-- height = 8.6 m set by reasonable offset from board height -->
-        <!-- 3.64^2 = (9.7-8.6)^2 + x^2 -->
-        <body name='fly_bar' pos='3.48 0 8.6' >
+        <!-- height = 8.3 m set by reasonable offset from board height -->
+        <!-- 3.64^2 = (9.7-8.3)^2 + x^2 -->
+        <body name='fly_bar' pos='3.36 0 8.3' >
             <geom name='fly_bar' type='cylinder' fromto='0 -0.45 0 0 0.45 0' size='0.01' />
-
             <body name='l_fly_cable' pos='0 -0.45 0'>
                 inertial mass='1' />
-                <geom name='l_fly_cable' type='cylinder' fromto='-0.02 0 0   -3.48 0 1.04' size='0.0025' />
+                <geom name='l_fly_cable' type='cylinder' fromto='-0.02 0 0   -3.36 0 1.34' size='0.0025' />
                 <joint name='l_fly_cable_bar_x' type='hinge' pos='0 0 0' axis='1 0 0' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
                 <joint name='l_fly_cable_bar_y' type='hinge' pos='0 0 0' axis='0 1 0' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
                 <joint name='l_fly_cable_bar_z' type='hinge' pos='0 0 0' axis='0 0 1' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
             </body>
             <body name='r_fly_cable' pos='0 0.45 0'>
                 inertial mass='1' />
-                <geom name='r_fly_cable' type='cylinder' fromto='-0.02 0 0   -3.48 0 1.04' size='0.0025' />
+                <geom name='r_fly_cable' type='cylinder' fromto='-0.02 0 0   -3.36 0 1.34' size='0.0025' />
                 <!-- <joint name='r_fly_cable_bar_attach' type='ball' axis='0 0 1' range='-180 180' pos='0 0 0' damping='0' stiffness='0' armature='0.001' /> -->
                 <joint name='r_fly_cable_bar_x' type='hinge' pos='0 0 0' axis='1 0 0' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />
                 <joint name='r_fly_cable_bar_y' type='hinge' pos='0 0 0' axis='0 1 0' range='-180 180'   damping='0' stiffness='.0' armature='0.01' />

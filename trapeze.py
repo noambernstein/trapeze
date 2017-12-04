@@ -9,7 +9,7 @@ parser.add_argument('-g','--grip_width',type=float,action='store',default=0.5, h
 parser.add_argument('-m','--movie',type=str,action='store',default=None, help='name of movie file to make from action initiated by --trick_name')
 parser.add_argument('-l','--movie_length',type=int,action='store',default='5', help='length of movie in seconds')
 parser.add_argument('-f','--movie_fps',type=int,action='store',default='30', help='frames per second in movie')
-parser.add_argument('-d','--dt',type=float,action='store',default='-1', help='time step for non-real-time parts')
+parser.add_argument('-d','--dt',type=float,action='store',default=None, help='time step for non-real-time parts')
 args = parser.parse_args()
 
 import time
@@ -51,7 +51,10 @@ for i in rigIDs:
     for j in range(p.getNumJoints(i)):
         p.changeDynamics(i,j,linearDamping=0.02, angularDamping=0.02)
 
-if args.dt > 0.0:
+if args.dt is None:
+    args.dt = p.getPhysicsEngineParameters()['fixedTimeStep']
+    print("using time step",args.dt)
+else:
     p.setTimeStep(args.dt)
 
 print(flyerID,rigIDs)
@@ -70,17 +73,18 @@ if boardLinkID == -1:
 else:
     raise ValueError("Board is not a base")
 
-flyer_board_offset = [-0.20,0,-0.08]
+flyer_board_offset_initial = [0.0,0,0.1]
+flyer_board_offset_final = [0.13,0,0.005]
 if do_exercise:
-    flyer_board_offset = [1,0,1]
+    flyer_board_offset_initial = [1,0,1]
 
 # move flyer to edge of board and face the right way
 (flyer_pos,flyer_orient) = p.getBasePositionAndOrientation(flyerID)
-p.resetBasePositionAndOrientation(flyerID,flyer_pos + board_edge + flyer_board_offset,
+p.resetBasePositionAndOrientation(flyerID,flyer_pos + board_edge + flyer_board_offset_initial,
     p.multiplyTransforms([0,0,0],flyer_orient,[0,0,0],p.getQuaternionFromEuler([0,20*deg,180*deg]))[1])
 
-# apply belt hold and serve bar
-belt_hold_constraint = fix_in_space(find_link('torso'), 'point2point')
+# apply initial belt hold and serve bar
+belt_hold_constraint = fix_in_space(find_link('torso'), 'fixed')
 bar_serve_hold = fix_in_space(find_link('fly_bar'), 'fixed')
 
 # get camera aimed for simulation
@@ -108,11 +112,47 @@ print ("READY")
 sim_state.do_name('ready')
 for i in range(int(0.5/args.dt)):
     p.stepSimulation()
+    sim_state.do_pose_stuff()
+
+(flyer_pos, _) = p.getBasePositionAndOrientation(flyerID)
+print("flyer com pos", flyer_pos)
+(_, l_lower_leg_link) = find_link('l_lower_leg')
+(_, r_lower_leg_link) = find_link('r_lower_leg')
+(board_base, _) = find_link('board')
+l_closest_points = p.getClosestPoints(bodyA=board_base, bodyB=flyerID, linkIndexB=l_lower_leg_link, distance=1.0)
+min_z = flyer_pos[2]
+for cp in l_closest_points:
+    if cp[6][2] < min_z:
+        l_foot_x = cp[6][0]
+        l_foot_z = cp[6][2]
+r_closest_points = p.getClosestPoints(bodyA=board_base, bodyB=flyerID, linkIndexB=r_lower_leg_link, distance=1.0)
+for cp in r_closest_points:
+    if cp[6][2] < min_z:
+        r_foot_x = cp[6][0]
+        r_foot_z = cp[6][2]
+print("l_foot",l_foot_x,l_foot_z)
+print("r_foot",r_foot_x,r_foot_z)
+mean_x = 0.5*(l_foot_x+r_foot_x)
+mean_z = 0.5*(l_foot_z+r_foot_z)
+print("world coord mean pos",mean_x,mean_z)
+print("board edge",board_edge)
+print("flyer_board_offset_final",flyer_board_offset_final)
+dx = (board_edge[0]+flyer_board_offset_final[0])-mean_x
+dz = (board_edge[2]+flyer_board_offset_final[2])-mean_z
+print("dx",dx,"dz",dz)
+flyer_pos = np.array(flyer_pos) + [dx, 0, dz]
+print("new flyer pos", flyer_pos)
+
+p.removeConstraint(belt_hold_constraint)
+p.resetBasePositionAndOrientation(flyerID,flyer_pos,
+    p.multiplyTransforms([0,0,0],flyer_orient,[0,0,0],p.getQuaternionFromEuler([0,20*deg,180*deg]))[1])
+belt_hold_constraint = fix_in_space(find_link('torso'), 'fixed')
 
 print("GRAB BAR")
 # settle down bar position
 for i in range(int(0.2/args.dt)):
     p.stepSimulation()
+    sim_state.do_pose_stuff()
 # release bar from hold and grab with hands
 p.removeConstraint(bar_serve_hold)
 bar_serve_hold = None
@@ -120,7 +160,7 @@ flyer_hands_attachment_constraints = grab_bar_with_hands(find_link('fly_bar'),fi
 # settle down hands
 for i in range(int(0.2/args.dt)):
     p.stepSimulation()
-
+    sim_state.do_pose_stuff()
 
 ###################################################################################################
 ## actions that aren't poses
@@ -155,6 +195,7 @@ if args.movie is not None:
     print("equilibrating for ",int(1.0/args.dt)," steps")
     for i in range(0,int(1.0/args.dt)):
         p.stepSimulation()
+        sim_state.do_pose_stuff()
     steps_per_frame = int((1.0/args.movie_fps)/args.dt)
     i_frame = 0
     print("doing movie with ",steps_per_frame," steps per frame")

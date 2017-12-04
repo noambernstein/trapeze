@@ -361,11 +361,11 @@ class SimulationState:
             close_joints = (np.abs(delta_pos) < crit_angles)
             joint_velocities[close_joints] *= delta_pos_sign[close_joints]*delta_pos[close_joints]/crit_angles[close_joints]
             #####
-            # if self.current_pose['name'] == 'flat':
-                # print("POSE")
-                # for i in range(len(joint_ids)):
-                    # print(i,p.getJointInfo(body_id,joint_ids[i])[1],"cur pos",joint_cur_positions[i]/deg,"target pos",self.current_pose['target_positions'][i]/deg,
-                        # "vel",joint_velocities[i]/deg)
-            #####
+            # print("DO POSE",self.current_pose['name'])
+            # for ji in range(len(joint_ids)):
+                # if p.getJointInfo(body_id,joint_ids[ji])[1] == b'l_knee' or p.getJointInfo(body_id,joint_ids[ji])[1] == b'l_shoulder1':
+                    # print(p.getJointInfo(body_id,joint_ids[ji])[1],joint_cur_positions[ji],self.current_pose['target_positions'][ji],
+                          # joint_velocities[ji],self.current_pose['max_torques'][ji])
+            ######
             p.setJointMotorControlArray(body_id, jointIndices=joint_ids, controlMode=p.VELOCITY_CONTROL,
                 targetVelocities=joint_velocities, forces=self.current_pose['max_torques'])

@@ -42,8 +42,8 @@
                 <joint name='l_hip_x' type='hinge' pos='0 0 0' axis='1 0 0' range='-25 75'       armature='0.01' />
                 <!-- <joint name='l_hip_z' type='hinge' pos='0 0 0' axis='0 0 1' range='-60 130'     armature='0.0080' /> -->
                 <body name='l_lower_leg' pos='0 0.0 -T_THIGH_LEN'>
-                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -(0.2*T_CALF_LEN+T_CALF_RAD) 0 0 -(T_CALF_LEN-T_CALF_RAD)' size='T_CALF_RAD' />
-                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.5*T_CALF_RAD 0 0 -(0.2*T_CALF_LEN+T_CALF_RAD)' size='0.5*T_CALF_RAD' />
+                    <geom name='l_lower_leg_thick' type='capsule' fromto='0 0 -(0.2*T_CALF_LEN+T_CALF_RAD) 0 0 -(T_CALF_LEN-T_CALF_RAD)' size='T_CALF_RAD' />
+                    <geom name='l_lower_leg_thin' type='capsule' fromto='0 0 -0.5*T_CALF_RAD 0 0 -(0.2*T_CALF_LEN+T_CALF_RAD)' size='0.5*T_CALF_RAD' />
                     <joint name='l_knee' type='hinge' pos='0 0 0' axis='0 1 0' range='0 160'       armature='0.01' />
                 </body>
             </body>
@@ -54,8 +54,8 @@
                 <joint name='r_hip_x' type='hinge' pos='0 0 0' axis='-1 0 0' range='-25 75'       armature='0.01' />
                 <!-- <joint name='r_hip_z' type='hinge' pos='0 0 0' axis='0 0 -1' range='-60 130'     armature='0.0080' /> -->
                 <body name='r_lower_leg' pos='0 0.0 -T_THIGH_LEN'>
-                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -(0.2*T_CALF_LEN+T_CALF_RAD) 0 0 -(T_CALF_LEN-T_CALF_RAD)' size='T_CALF_RAD' />
-                    <geom name='l_lower_leg' type='capsule' fromto='0 0 -0.5*T_CALF_RAD 0 0 -(0.2*T_CALF_LEN+T_CALF_RAD)' size='0.5*T_CALF_RAD' />
+                    <geom name='l_lower_leg_thick' type='capsule' fromto='0 0 -(0.2*T_CALF_LEN+T_CALF_RAD) 0 0 -(T_CALF_LEN-T_CALF_RAD)' size='T_CALF_RAD' />
+                    <geom name='l_lower_leg_thin' type='capsule' fromto='0 0 -0.5*T_CALF_RAD 0 0 -(0.2*T_CALF_LEN+T_CALF_RAD)' size='0.5*T_CALF_RAD' />
                     <joint name='r_knee' type='hinge' pos='0 0 0' axis='0 1 0' range='0 160'       armature='0.01' />
                 </body>
             </body>
