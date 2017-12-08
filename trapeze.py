@@ -17,7 +17,7 @@ import numpy as np
 import pybullet as p
 if args.movie is not None:
     import subprocess
-    from PIL import Image
+    from PIL import Image, ImageFont, ImageDraw
     if args.trick_name is None:
         raise ValueError("Need trick name to make a movie from")
 
@@ -165,7 +165,7 @@ def takeoff_release_hep(cur_time=None):
     if belt_hold_constraint is not None: # takeoff
         p.removeConstraint(belt_hold_constraint)
         belt_hold_constraint = None
-        p.resetBaseVelocity(flyerID,linearVelocity=[0,0,2.0],angularVelocity=[0,3.0,0])
+        p.resetBaseVelocity(flyerID,linearVelocity=[0,0,2.0],angularVelocity=[0,1.5,0])
         sim_state.do_name('seven')
     else: # release
         for constraint in flyer_hands_attachment_constraints:
@@ -185,8 +185,8 @@ if args.trick_name is not None:
 
 print("MAIN LOOP")
 if args.movie is not None:
-    print("equilibrating for ",int(1.0/args.dt)," steps")
-    for i in range(0,int(1.0/args.dt)):
+    print("equilibrating for ",int(0.5/args.dt)," steps")
+    for i in range(0,int(0.5/args.dt)):
         p.stepSimulation()
         sim_state.do_pose_stuff()
     steps_per_frame = int((1.0/args.movie_fps)/args.dt)
@@ -205,14 +205,18 @@ if args.movie is not None:
              )
                  # '-vcodec', 'mpeg4',
     ffmpeg = subprocess.Popen(cmdstring, stdin=subprocess.PIPE, shell=False)
+    font = ImageFont.truetype("/Library/Fonts/Arial.ttf",32)
     for i_step in range(int(args.movie_length/args.dt)):
         p.stepSimulation()
         if i_step%steps_per_frame == 0:
             print("doing frame",i_frame)
-            frame = p.getCameraImage(960,540, renderer=p.ER_BULLET_HARDWARE_OPENGL)
-            im = Image.fromarray(frame[2], 'RGBA')
+            frame = p.getCameraImage(960*2,540*2, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+            img = Image.fromarray(frame[2], 'RGBA')
+            if sim_state.current_pose_name is not None:
+                drw = ImageDraw.Draw(img)
+                drw.text((960*2/10, 540*2/10),text=sim_state.current_pose_name,fill=(255,255,255),font=font)
             # png.fromarray(frame[2],'RGBA').save("frame.{:06d}.png".format(i_frame))
-            ffmpeg.stdin.write(im.convert('RGB').tobytes('jpeg','RGB'))
+            ffmpeg.stdin.write(img.convert('RGB').tobytes('jpeg','RGB'))
             i_frame += 1
         cur_time += args.dt
         sim_state.do_pose_stuff(cur_time)
@@ -220,6 +224,8 @@ if args.movie is not None:
 
 else:
     p.setRealTimeSimulation(1)
+    cur_text = None
+    cur_text_id = None
     while True:
         # handle keyboard
         keys = p.getKeyboardEvents()
@@ -230,5 +236,14 @@ else:
 
         # do pose sequence things
         sim_state.do_pose_stuff()
+        if sim_state.current_pose_name != cur_text:
+            if cur_text_id is not None:
+                p.removeUserDebugItem(cur_text_id)
+            cur_text = sim_state.current_pose_name
+            print("adding text",cur_text)
+            if cur_text is not None:
+                cur_text_id = p.addUserDebugText(cur_text, board_edge+[0,0,2], lifeTime=0)
+            else:
+                cur_text_id = None
 
 p.disconnect()

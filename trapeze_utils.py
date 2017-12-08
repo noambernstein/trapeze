@@ -283,6 +283,7 @@ class SimulationState:
 
     def __init__(self, poses, action_sequences):
         self.current_pose = None
+        self.current_pose_name = None
         self.current_action_seq = None
         self.action_seq_start_time=-1
         self.action_seq_cur_index=-1
@@ -315,6 +316,7 @@ class SimulationState:
     def start_pose(self, pose_name,pose, cur_time=None):
         print("  start pose",pose_name)
         self.current_pose = pose
+        self.current_pose_name = pose_name
 
     def start_action_seq(self,action_name,action_sequence, cur_time = None):
         print("  start action sequence",action_name)
