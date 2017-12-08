@@ -58,18 +58,62 @@
         <joint name='r_knee' value='30' />
     </pose>
 
-    <pose key='f' name='flat' >
-    </pose>
+    <pose key='f' name='flat' />
 
     <pose name='seven' >
         <joint name='l_shoulder1' value='-10'/>
         <joint name='r_shoulder1' value='-10'/>
     </pose>
 
-    <action_sequence name='takeoff' >
+    <pose name='sweep' >
+        <joint name='l_shoulder1' value='105' />
+        <joint name='r_shoulder1' value='105' />
+        <joint name='l_hip_y' value='-45' />
+        <joint name='r_hip_y' value='-45' />
+    </pose>
+
+    <pose name='legs_forward' >
+        <joint name='l_shoulder1' value='45' />
+        <joint name='r_shoulder1' value='45' />
+        <joint name='l_hip_y' value='45' />
+        <joint name='r_hip_y' value='45' />
+    </pose>
+    <pose name='curl_in' >
+        <joint name='l_shoulder1' value='-20' speed='360' />
+        <joint name='r_shoulder1' value='-20' speed='360' />
+        <joint name='l_hip_y' value='110' speed='360' />
+        <joint name='r_hip_y' value='110' speed='360' />
+        <joint name='l_knee' value='110' speed='360' />
+        <joint name='r_knee' value='110' speed='360' />
+    </pose>
+    <pose name='force_out' >
+        <joint name='l_shoulder1' value='-20' speed='360' />
+        <joint name='r_shoulder1' value='-20'  speed='360'/>
+        <joint name='l_hip_y' value='10'  speed='360'/>
+        <joint name='r_hip_y' value='10'  speed='360'/>
+    </pose>
+    <pose name='hollow' >
+        <joint name='l_shoulder1' value='80' />
+        <joint name='r_shoulder1' value='80' />
+        <joint name='l_hip_y' value='10'  speed='360'/>
+        <joint name='r_hip_y' value='10'  speed='360'/>
+    </pose>
+
+
+    <action_sequence name='takeoff_full_swing' >
         <pose name='hep' />
+        <wait time='0.6' />
+        <pose name='sweep' />
         <wait time='0.4' />
+        <pose name='legs_forward' />
+        <wait time='0.5' />
+        <pose name='curl_in' />
+        <wait time='0.3' />
+        <pose name='force_out' />
+        <wait time='0.3' />
         <pose name='flat' />
+        <wait time='1.0' />
+        <pose name='hollow' />
     </action_sequence >
 
 </poses>
