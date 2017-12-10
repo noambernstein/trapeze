@@ -54,8 +54,8 @@
         <joint name='r_hip_y' value='10' />
         <joint name='l_hip_x' value='15' />
         <joint name='r_hip_x' value='15' />
-        <joint name='l_knee' value='30' />
-        <joint name='r_knee' value='30' />
+        <joint name='l_knee' value='45' />
+        <joint name='r_knee' value='45' />
     </pose>
 
     <pose key='f' name='flat' />
@@ -70,27 +70,33 @@
         <joint name='r_shoulder1' value='105' />
         <joint name='l_hip_y' value='-45' />
         <joint name='r_hip_y' value='-45' />
+        <joint name='l_knee' value='30' />
+        <joint name='r_knee' value='30' />
     </pose>
 
     <pose name='legs_forward' >
-        <joint name='l_shoulder1' value='45' />
-        <joint name='r_shoulder1' value='45' />
+        <joint name='l_shoulder1' value='75' />
+        <joint name='r_shoulder1' value='75' />
         <joint name='l_hip_y' value='45' />
         <joint name='r_hip_y' value='45' />
     </pose>
     <pose name='curl_in' >
-        <joint name='l_shoulder1' value='-20' speed='360' />
-        <joint name='r_shoulder1' value='-20' speed='360' />
-        <joint name='l_hip_y' value='110' speed='360' />
-        <joint name='r_hip_y' value='110' speed='360' />
-        <joint name='l_knee' value='110' speed='360' />
-        <joint name='r_knee' value='110' speed='360' />
+        <joint name='l_shoulder1' value='0' speed='360' />
+        <joint name='r_shoulder1' value='0' speed='360' />
+        <joint name='l_hip_y' value='130' speed='360' />
+        <joint name='r_hip_y' value='130' speed='360' />
+        <joint name='l_knee' value='130' speed='360' />
+        <joint name='r_knee' value='130' speed='360' />
     </pose>
     <pose name='force_out' >
-        <joint name='l_shoulder1' value='20' speed='360' />
-        <joint name='r_shoulder1' value='20'  speed='360'/>
-        <joint name='l_hip_y' value='10'  speed='360'/>
-        <joint name='r_hip_y' value='10'  speed='360'/>
+        <joint name='l_shoulder1' value='0' speed='600' />
+        <joint name='r_shoulder1' value='0'  speed='600'/>
+        <joint name='l_elbow' value='90' speed='600' />
+        <joint name='r_elbow' value='90'  speed='600'/>
+        <joint name='l_hip_y' value='30'  speed='600'/>
+        <joint name='r_hip_y' value='30'  speed='600'/>
+        <joint name='l_knee' value='00'  speed='400'/>
+        <joint name='r_knee' value='00'  speed='400'/>
     </pose>
     <pose name='hollow' >
         <joint name='l_shoulder1' value='80' />
@@ -102,21 +108,23 @@
 
     <action_sequence name='takeoff_full_swing' >
         <pose name='hep' />
-        <wait time='0.7' />
+        <wait time='0.4' />
         <pose name='sweep' />
-        <wait time='0.6' />
+        <wait time='0.7' />
         <pose name='legs_forward' />
         <wait time='0.4' />
         <pose name='curl_in' />
-        <wait time='0.3' />
+        <wait time='0.6' />
         <pose name='force_out' />
         <wait time='0.4' />
         <pose name='flat' />
-        <wait time='1.0' />
+
+        <wait time='0.7' />
+
         <pose name='hollow' />
         <wait time='0.3' />
         <pose name='sweep' />
-        <wait time='0.5' />
+        <wait time='0.6' />
         <pose name='seven' />
     </action_sequence >
 
