@@ -10,6 +10,7 @@ parser.add_argument('-m','--movie',type=str,action='store',default=None, help='n
 parser.add_argument('-l','--movie_length',type=int,action='store',default='5', help='length of movie in seconds')
 parser.add_argument('-f','--movie_fps',type=int,action='store',default='30', help='frames per second in movie')
 parser.add_argument('-d','--dt',type=float,action='store',default=None, help='time step for non-real-time parts')
+parser.add_argument('-F','--fast_render',action='store_true',help='fast by ugly render')
 args = parser.parse_args()
 
 import time
@@ -24,8 +25,15 @@ if args.movie is not None:
 from trapeze_utils import *
 
 do_exercise = len(sys.argv) > 1 and sys.argv[1] == "--exercise"
+################################################################################
+if args.fast_render:
+    physicsClient = p.connect(p.DIRECT)
+    text_color = (0,0,0)
+else:
+    physicsClient = p.connect(p.GUI)
+    text_color = (255,255,255)
+################################################################################
 
-physicsClient = p.connect(p.GUI) #or p.DIRECT for non-graphical version
 p.setPhysicsEngineParameter(numSolverIterations=1000)
 
 p.setGravity(0,0,-9.8)
@@ -46,10 +54,10 @@ for j in range(p.getNumJoints(flyerID)):
 rigIDs = p.loadMJCF("rig.xml")
 
 for j in range(p.getNumJoints(flyerID)):
-    p.changeDynamics(flyerID,j,linearDamping=0.02, angularDamping=0.02)
+    p.changeDynamics(flyerID,j,linearDamping=0.01, angularDamping=0.02)
 for i in rigIDs:
     for j in range(p.getNumJoints(i)):
-        p.changeDynamics(i,j,linearDamping=0.02, angularDamping=0.02)
+        p.changeDynamics(i,j,linearDamping=0.01, angularDamping=0.02)
 
 if args.dt is None:
     args.dt = p.getPhysicsEngineParameters()['fixedTimeStep']
@@ -89,6 +97,9 @@ bar_serve_hold = fix_in_space(find_link('fly_bar'), 'fixed')
 
 # get camera aimed for simulation
 p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=0, cameraPitch=5, cameraTargetPosition=[0,0,board_edge[2]])
+view_matrix = p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=[0,0,board_edge[2]], distance=5,
+    yaw=0, pitch=5, roll=0, upAxisIndex=2)
+proj_matrix = p.computeProjectionMatrixFOV(fov=80, aspect=float(960)/float(540), nearVal=0.1, farVal=100.0)
 
 # exercise if requested
 if len(sys.argv) > 1 and sys.argv[1] == "--exercise":
@@ -210,11 +221,15 @@ if args.movie is not None:
         p.stepSimulation()
         if i_step%steps_per_frame == 0:
             print("doing frame",i_frame)
-            frame = p.getCameraImage(960*2,540*2, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+            if args.fast_render:
+                frame = p.getCameraImage(960*2,540*2, viewMatrix=view_matrix, projectionMatrix=proj_matrix,
+                    renderer=p.ER_TINY_RENDERER)
+            else:
+                frame = p.getCameraImage(960*2,540*2, renderer=p.ER_BULLET_HARDWARE_OPENGL)
             img = Image.fromarray(frame[2], 'RGBA')
             if sim_state.current_pose_name is not None:
                 drw = ImageDraw.Draw(img)
-                drw.text((960*2/10, 540*2/10),text=sim_state.current_pose_name,fill=(255,255,255),font=font)
+                drw.text((960*2/10, 540*2/10),text=sim_state.current_pose_name,fill=text_color,font=font)
             # png.fromarray(frame[2],'RGBA').save("frame.{:06d}.png".format(i_frame))
             ffmpeg.stdin.write(img.convert('RGB').tobytes('jpeg','RGB'))
             i_frame += 1
