@@ -34,7 +34,7 @@ else:
     text_color = (255,255,255)
 ################################################################################
 
-p.setPhysicsEngineParameter(numSolverIterations=1000)
+p.setPhysicsEngineParameter(numSolverIterations=5000)
 
 p.setGravity(0,0,-9.8)
 
@@ -92,7 +92,7 @@ p.resetBasePositionAndOrientation(flyerID,flyer_pos + board_edge + flyer_board_o
     p.multiplyTransforms([0,0,0],flyer_orient,[0,0,0],p.getQuaternionFromEuler([0,20*deg,180*deg]))[1])
 
 # apply initial belt hold and serve bar
-belt_hold_constraint = fix_in_space(find_link('torso'), 'fixed')
+belt_hold_constraint = fix_in_space(find_link('torso'), 'point2point')
 bar_serve_hold = fix_in_space(find_link('fly_bar'), 'fixed')
 
 # get camera aimed for simulation
