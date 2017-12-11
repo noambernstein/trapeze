@@ -215,12 +215,14 @@ if args.movie is not None:
                  args.movie
              )
                  # '-vcodec', 'mpeg4',
-    ffmpeg = subprocess.Popen(cmdstring, stdin=subprocess.PIPE, shell=False)
+    fo = open("/dev/null","w")
+    ffmpeg = subprocess.Popen(cmdstring, stdin=subprocess.PIPE, stdout=fo, stderr=fo, shell=False)
     font = ImageFont.truetype("/Library/Fonts/Arial.ttf",32)
     for i_step in range(int(args.movie_length/args.dt)):
         p.stepSimulation()
         if i_step%steps_per_frame == 0:
-            print("doing frame",i_frame)
+            if i_frame%args.movie_fps == 0:
+                print("doing frame",i_frame)
             if args.fast_render:
                 frame = p.getCameraImage(960*2,540*2, viewMatrix=view_matrix, projectionMatrix=proj_matrix,
                     renderer=p.ER_TINY_RENDERER)

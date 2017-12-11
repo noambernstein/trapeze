@@ -327,10 +327,10 @@ class SimulationState:
         self.current_action_seq = action_sequence
         self.action_seq_cur_index = 0
 
-    def do_name(self,name):
+    def do_name(self,name,cur_time=None):
         print("do name ",name)
         (action_func, action_kwargs) = self.actions_by_name[name]
-        action_func(**action_kwargs)
+        action_func(**action_kwargs, cur_time=cur_time)
 
     def do_key(self,key,cur_time=None):
         try:
@@ -347,10 +347,12 @@ class SimulationState:
             if (cur_time - self.action_seq_start_time) >= self.current_action_seq[self.action_seq_cur_index]:
                 action = self.current_action_seq[self.action_seq_cur_index+1][0]
                 action_arg = self.current_action_seq[self.action_seq_cur_index+1][1]
-                action(action_arg)
+
                 self.action_seq_cur_index += 2
                 if self.action_seq_cur_index >= len(self.current_action_seq):
                     self.current_action_seq = None
+
+                action(action_arg,cur_time=cur_time)
         if self.current_pose is not None:
             body_id = self.current_pose['body_index']
             joint_ids = self.current_pose['joint_indices']
