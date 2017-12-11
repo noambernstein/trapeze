@@ -282,6 +282,7 @@ def print_action_seq(action_sequence):
 class SimulationState:
 
     def __init__(self, poses, action_sequences):
+        self.debug = False
         self.current_pose = None
         self.current_pose_name = None
         self.current_action_seq = None
@@ -365,11 +366,12 @@ class SimulationState:
             close_joints = (np.abs(delta_pos) < crit_angles)
             joint_velocities[close_joints] *= delta_pos_sign[close_joints]*delta_pos[close_joints]/crit_angles[close_joints]
             #####
-            # print("DO POSE",self.current_pose['name'])
-            # for ji in range(len(joint_ids)):
-                # if p.getJointInfo(body_id,joint_ids[ji])[1] == b'l_knee' or p.getJointInfo(body_id,joint_ids[ji])[1] == b'l_shoulder1':
-                    # print(p.getJointInfo(body_id,joint_ids[ji])[1],joint_cur_positions[ji],self.current_pose['target_positions'][ji],
-                          # joint_velocities[ji],self.current_pose['max_torques'][ji])
-            ######
+            # if self.debug:
+                # for ji in range(len(joint_ids)):
+                    # if p.getJointInfo(body_id,joint_ids[ji])[1] == b'l_elbow' or p.getJointInfo(body_id,joint_ids[ji])[1] == b'l_shoulder1':
+                        # print("   ",p.getJointInfo(body_id,joint_ids[ji])[1],
+                            # "cur,target",joint_cur_positions[ji]/deg,self.current_pose['target_positions'][ji]/deg,
+                            # "vel,max_torque",joint_velocities[ji]/deg,self.current_pose['max_torques'][ji])
+            ##### 
             p.setJointMotorControlArray(body_id, jointIndices=joint_ids, controlMode=p.VELOCITY_CONTROL,
                 targetVelocities=joint_velocities, forces=self.current_pose['max_torques'])
