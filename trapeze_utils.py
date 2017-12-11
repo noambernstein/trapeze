@@ -244,10 +244,8 @@ def parse_poses(flyerID, file):
             except KeyError:
                 action_seq_key=''
 
-            action_seq = [0.0]
-            cumul_wait = 0.0
+            action_seq = []
             for elem in child:
-                # print("in child",elem.tag)
                 if elem.tag == 'pose':
                     if 'name' in elem.attrib:
                         action_seq.append(('name',elem.attrib['name']))
@@ -256,10 +254,11 @@ def parse_poses(flyerID, file):
                     else:
                         raise ValueError('No name specified in pose in action_sequence {}'.format(action_seq_name))
                 elif elem.tag == 'wait':
-                    cumul_wait += float(elem.attrib['time'])
-                    action_seq.append(cumul_wait)
-                else:
-                    raise ValueError("Unknown tag within action_sequence "+elem.tag)
+                    if 'time' in elem.attrib:
+                        action_seq.append(('time',float(elem.attrib['time'])))
+                    else:
+                        raise ValueError('Only time supported in "wait" tag')
+
             action_sequences.append((action_seq_key, action_seq_name, action_seq))
 
         else:
@@ -296,13 +295,12 @@ class SimulationState:
         for (key, name, pose) in poses:
             self.register_action(key, name, self.start_pose, pose_name=name, pose=pose)
         for (key, name, action_seq) in action_sequences:
-            for i in range(0,len(action_seq),2):
-                if action_seq[i+1][0] == 'key':
-                    action_seq[i+1] = (self.do_key, action_seq[i+1][1])
-                elif action_seq[i+1][0] == 'name':
-                    action_seq[i+1] = (self.do_name, action_seq[i+1][1])
-                else:
-                    raise ValueError("unknown action type "+action_seq[i+1][0])
+            # convert from keys and names to functions
+            for i in range(len(action_seq)):
+                if action_seq[i][0] == 'key':
+                    action_seq[i] = ('key', self.do_key, action_seq[i][1])
+                elif action_seq[i][0] == 'name':
+                    action_seq[i] = ('name', self.do_name, action_seq[i][1])
             self.register_action(key, name, self.start_action_seq, action_name=name, action_sequence=action_seq)
 
     def register_action_sequence(self, key, action_sequence_name):
@@ -341,19 +339,24 @@ class SimulationState:
         except KeyError:
             pass
 
-    def do_pose_stuff(self, cur_time=None):
+    def do_pose_stuff(self, cur_time):
+
         if self.current_action_seq is not None:
-            if cur_time is None:
-                cur_time = time.time()
-            if (cur_time - self.action_seq_start_time) >= self.current_action_seq[self.action_seq_cur_index]:
-                action = self.current_action_seq[self.action_seq_cur_index+1][0]
-                action_arg = self.current_action_seq[self.action_seq_cur_index+1][1]
-
-                self.action_seq_cur_index += 2
-                if self.action_seq_cur_index >= len(self.current_action_seq):
-                    self.current_action_seq = None
-
+            seq_step_type =self.current_action_seq[self.action_seq_cur_index][0] 
+            if seq_step_type == 'name':
+                action = self.current_action_seq[self.action_seq_cur_index][1]
+                action_arg = self.current_action_seq[self.action_seq_cur_index][2]
+                self.action_seq_cur_index += 1
+                self.waiting = False
                 action(action_arg,cur_time=cur_time)
+            if seq_step_type == 'time':
+                if not self.waiting:
+                    self.waiting = True
+                    self.action_seq_start_time = cur_time
+                elif cur_time-self.action_seq_start_time >= self.current_action_seq[self.action_seq_cur_index][1]:
+                    self.waiting = False
+                    self.action_seq_cur_index += 1
+
         if self.current_pose is not None:
             body_id = self.current_pose['body_index']
             joint_ids = self.current_pose['joint_indices']

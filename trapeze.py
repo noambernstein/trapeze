@@ -123,7 +123,7 @@ print ("READY")
 sim_state.do_name('ready')
 for i in range(int(0.5/args.dt)):
     p.stepSimulation()
-    sim_state.do_pose_stuff()
+    sim_state.do_pose_stuff(time.time())
 
 # position flyer relative to board
 (flyer_pos, _) = p.getBasePositionAndOrientation(flyerID)
@@ -156,7 +156,7 @@ print("GRAB BAR")
 # settle down bar position
 for i in range(int(0.2/args.dt)):
     p.stepSimulation()
-    sim_state.do_pose_stuff()
+    sim_state.do_pose_stuff(time.time())
 # release bar from hold and grab with hands
 p.removeConstraint(bar_serve_hold)
 bar_serve_hold = None
@@ -164,7 +164,7 @@ flyer_hands_attachment_constraints = grab_bar_with_hands(find_link('fly_bar'),fi
 # settle down hands
 for i in range(int(0.2/args.dt)):
     p.stepSimulation()
-    sim_state.do_pose_stuff()
+    sim_state.do_pose_stuff(time.time())
 
 ###################################################################################################
 ## actions that aren't poses
@@ -199,7 +199,7 @@ if args.movie is not None:
     print("equilibrating for ",int(0.5/args.dt)," steps")
     for i in range(0,int(0.5/args.dt)):
         p.stepSimulation()
-        sim_state.do_pose_stuff()
+        sim_state.do_pose_stuff(time.time())
     steps_per_frame = int((1.0/args.movie_fps)/args.dt)
     i_frame = 0
     print("doing movie with ",steps_per_frame," steps per frame")
@@ -253,7 +253,7 @@ else:
                 sim_state.do_key(chr(key_ord))
 
         # do pose sequence things
-        sim_state.do_pose_stuff()
+        sim_state.do_pose_stuff(time.time())
         if sim_state.current_pose_name != cur_text:
             if cur_text_id is not None:
                 p.removeUserDebugItem(cur_text_id)
