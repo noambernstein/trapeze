@@ -130,29 +130,8 @@
         <wait time='0.6' />
         <pose name='seven' />
 
-    </action_sequence >
-
-    <action_sequence name='takeoff_full_swing_old' >
-        <pose name='hep' />
-        <wait time='0.5' />
-
-        <pose name='sweep' />
-        <wait time='0.6' />
-        <pose name='legs_forward' />
-        <wait time='0.4' />
-        <pose name='curl_in' />
-        <wait time='0.6' />
-        <pose name='force_out' />
-        <wait time='0.4' />
-        <pose name='flat' />
-
-        <wait time='0.7' />
-
-        <pose name='hollow' />
-        <wait time='0.3' />
-        <pose name='sweep' />
-        <wait time='0.6' />
-        <pose name='seven' />
+        <wait time='1.0' />
+        <pose name='full_swing' />
 
     </action_sequence >
 

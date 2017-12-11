@@ -232,8 +232,9 @@ if args.movie is not None:
             if sim_state.current_pose_name is not None:
                 drw = ImageDraw.Draw(img)
                 drw.text((960*2/10, 540*2/10),text=sim_state.current_pose_name,fill=text_color,font=font)
-            # png.fromarray(frame[2],'RGBA').save("frame.{:06d}.png".format(i_frame))
+            ##### png.fromarray(frame[2],'RGBA').save("frame.{:06d}.png".format(i_frame))
             ffmpeg.stdin.write(img.convert('RGB').tobytes('jpeg','RGB'))
+            #####
             i_frame += 1
         cur_time += args.dt
         sim_state.do_pose_stuff(cur_time)
