@@ -146,8 +146,10 @@
         <wait time='0.6' />
         <pose name='seven' />
 
+        <!--
         <wait time='0.9' />
         <pose name='full_swing' />
+        -->
 
     </action_sequence >
 
