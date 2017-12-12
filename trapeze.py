@@ -200,9 +200,9 @@ if args.movie is not None:
     for i in range(0,int(0.5/args.dt)):
         p.stepSimulation()
         sim_state.do_pose_stuff(time.time())
-    steps_per_frame = int((1.0/args.movie_fps)/args.dt)
+    frame_interval = (1.0/args.movie_fps)
     i_frame = 0
-    print("doing movie with ",steps_per_frame," steps per frame")
+    print("doing movie")
     cur_time = 0.0
     sim_state.do_key('t', cur_time=cur_time)
     cmdstring = ('ffmpeg',
@@ -218,11 +218,14 @@ if args.movie is not None:
     fo = open("/dev/null","w")
     ffmpeg = subprocess.Popen(cmdstring, stdin=subprocess.PIPE, stdout=fo, stderr=fo, shell=False)
     font = ImageFont.truetype("/Library/Fonts/Arial.ttf",32)
-    for i_step in range(int(args.movie_length/args.dt)):
+    last_frame = -1
+    while True:
         p.stepSimulation()
-        if i_step%steps_per_frame == 0:
+        cur_frame = int(cur_time/frame_interval)
+        if cur_frame > last_frame:
+            last_frame = cur_frame
             if i_frame%args.movie_fps == 0:
-                print("doing frame",i_frame)
+                print("doing frame",i_frame/args.movie_fps,"s")
             if args.fast_render:
                 frame = p.getCameraImage(960*2,540*2, viewMatrix=view_matrix, projectionMatrix=proj_matrix,
                     renderer=p.ER_TINY_RENDERER)
@@ -232,12 +235,13 @@ if args.movie is not None:
             if sim_state.current_pose_name is not None:
                 drw = ImageDraw.Draw(img)
                 drw.text((960*2/10, 540*2/10),text=sim_state.current_pose_name,fill=text_color,font=font)
-            ##### png.fromarray(frame[2],'RGBA').save("frame.{:06d}.png".format(i_frame))
             ffmpeg.stdin.write(img.convert('RGB').tobytes('jpeg','RGB'))
-            #####
+            ##### png.fromarray(frame[2],'RGBA').save("frame.{:06d}.png".format(i_frame))
             i_frame += 1
         cur_time += args.dt
         sim_state.do_pose_stuff(cur_time)
+        if cur_time >= args.movie_length:
+            break
     ffmpeg.stdin.close()
 
 else:
