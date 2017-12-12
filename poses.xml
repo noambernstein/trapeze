@@ -58,11 +58,20 @@
         <joint name='r_knee' value='45' />
     </pose>
 
+    <pose name='loose_shoulders' >
+        <joint name='l_shoulder1' torque='10' />
+        <joint name='r_shoulder1' torque='10' />
+        <joint name='l_shoulder2' torque='10' />
+        <joint name='r_shoulder2' torque='10' />
+    </pose>
+
     <pose key='f' name='flat' >
-        <joint name='l_elbow' value='0' speed='600' />
-        <joint name='r_elbow' value='0' speed='600' />
-        <joint name='l_hip_y' value='0' speed='600' />
-        <joint name='r_hip_y' value='0' speed='600' />
+        <joint name='l_elbow' value='0' speed='400' />
+        <joint name='r_elbow' value='0' speed='400' />
+        <joint name='l_shoulder1' value='90' speed='400' />
+        <joint name='r_shoulder1' value='90' speed='400' />
+        <joint name='l_hip_y' value='0' speed='400' />
+        <joint name='r_hip_y' value='0' speed='400' />
     </pose>
 
     <pose name='seven' >
@@ -98,10 +107,10 @@
         <joint name='r_shoulder1' value='0'  speed='600'/>
         <joint name='l_elbow' value='90' speed='600' />
         <joint name='r_elbow' value='90'  speed='600'/>
-        <joint name='l_hip_y' value='30'  speed='600'/>
-        <joint name='r_hip_y' value='30'  speed='600'/>
-        <joint name='l_knee' value='00'  speed='400'/>
-        <joint name='r_knee' value='00'  speed='400'/>
+        <joint name='l_hip_y' value='10'  speed='600'/>
+        <joint name='r_hip_y' value='10'  speed='600'/>
+        <joint name='l_knee' value='00'  speed='600'/>
+        <joint name='r_knee' value='00'  speed='600'/>
     </pose>
     <pose name='hollow' >
         <joint name='l_shoulder1' value='70' />
@@ -112,22 +121,24 @@
 
     <action_sequence name='takeoff_full_swing' >
         <pose name='hep' />
-        <wait time='0.5' />
+        <wait time='0.2' />
         <pose name='full_swing' />
     </action_sequence >
 
     <action_sequence key='s' name='full_swing' >
+        <pose name='loose_shoulders' />
+        <wait time='0.3' />
         <pose name='sweep' />
         <wait time='0.6' />
         <pose name='legs_forward' />
         <wait time='0.4' />
         <pose name='curl_in' />
-        <wait time='0.6' />
+        <wait time='0.5' />
         <pose name='force_out' />
-        <wait time='0.4' />
+        <wait time='0.3' />
         <pose name='flat' />
 
-        <wait time='0.7' />
+        <wait time='0.6' />
 
         <pose name='hollow' />
         <wait time='0.3' />
@@ -135,7 +146,7 @@
         <wait time='0.6' />
         <pose name='seven' />
 
-        <wait time='1.0' />
+        <wait time='0.9' />
         <pose name='full_swing' />
 
     </action_sequence >
