@@ -74,9 +74,14 @@
         <joint name='r_hip_y' value='0' speed='400' />
     </pose>
 
-    <pose name='seven' >
+    <pose name='takeoff_seven' >
         <joint name='l_shoulder1' value='-10'/>
         <joint name='r_shoulder1' value='-10'/>
+    </pose>
+
+    <pose name='seven' >
+        <joint name='l_shoulder1' value='-20' speed='500' />
+        <joint name='r_shoulder1' value='-20' speed='500' />
     </pose>
 
     <pose name='sweep' >
@@ -146,10 +151,8 @@
         <wait time='0.6' />
         <pose name='seven' />
 
-        <!--
         <wait time='0.9' />
         <pose name='full_swing' />
-        -->
 
     </action_sequence >
 

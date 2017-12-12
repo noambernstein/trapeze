@@ -356,6 +356,8 @@ class SimulationState:
                 elif cur_time-self.action_seq_start_time >= self.current_action_seq[self.action_seq_cur_index][1]:
                     self.waiting = False
                     self.action_seq_cur_index += 1
+            if self.action_seq_cur_index >= len(self.current_action_seq):
+                self.current_action_seq = None
 
         if self.current_pose is not None:
             body_id = self.current_pose['body_index']
